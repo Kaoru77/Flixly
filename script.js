@@ -5,8 +5,6 @@ File ini mengatur SELURUH logika dan interaktivitas aplikasi.
 Dipisah dari HTML agar lebih mudah dikembangkan dan dirawat.
 ============================================================
 */
-
-
 /* ============================================================
    1. DATA PLATFORM STREAMING
    Array berisi objek setiap platform. Setiap objek punya:
@@ -36,22 +34,22 @@ const platforms = [
    - emoji  : dipakai sebagai "poster" pengganti gambar asli
    ============================================================ */
 const movies = [
-  { id:1,  title:"The Shawshank Redemption",           year:1994, genre:"Drama",     rating:9.3, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:2,  title:"The Godfather",                      year:1972, genre:"Drama",     rating:9.2, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:3,  title:"The Dark Knight",                    year:2008, genre:"Action",    rating:9.0, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:4,  title:"Interstellar",                       year:2014, genre:"Sci-Fi",    rating:8.7, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:5,  title:"Inception",                          year:2010, genre:"Sci-Fi",    rating:8.8, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:6,  title:"Parasite",                           year:2019, genre:"Thriller",  rating:8.5, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:7,  title:"Spirited Away",                      year:2001, genre:"Animation", rating:8.6, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:8,  title:"The Grand Budapest Hotel",           year:2014, genre:"Comedy",    rating:8.1, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:9,  title:"Avengers: Endgame",                  year:2019, genre:"Action",    rating:8.4, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:10, title:"Joker",                              year:2019, genre:"Drama",     rating:8.4, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:11, title:"Dune",                               year:2021, genre:"Sci-Fi",    rating:8.0, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:12, title:"Your Name",                          year:2016, genre:"Animation", rating:8.4, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:13, title:"Knives Out",                         year:2019, genre:"Thriller",  rating:7.9, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:14, title:"Superbad",                           year:2007, genre:"Comedy",    rating:7.6, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:15, title:"Mad Max: Fury Road",                 year:2015, genre:"Action",    rating:8.1, emoji:"<img src='https://link-poster.jpg' />" },
-  { id:16, title:"Everything Everywhere All at Once",  year:2022, genre:"Sci-Fi",    rating:7.8, emoji:"<img src='https://link-poster.jpg' />" },
+  { id:1,  title:"The Shawshank Redemption",           year:1994, genre:"Drama",     rating:9.3, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:2,  title:"The Godfather",                      year:1972, genre:"Drama",     rating:9.2, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:3,  title:"The Dark Knight",                    year:2008, genre:"Action",    rating:9.0, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:4,  title:"Interstellar",                       year:2014, genre:"Sci-Fi",    rating:8.7, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:5,  title:"Inception",                          year:2010, genre:"Sci-Fi",    rating:8.8, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:6,  title:"Parasite",                           year:2019, genre:"Thriller",  rating:8.5, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:7,  title:"Spirited Away",                      year:2001, genre:"Animation", rating:8.6, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:8,  title:"The Grand Budapest Hotel",           year:2014, genre:"Comedy",    rating:8.1, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:9,  title:"Avengers: Endgame",                  year:2019, genre:"Action",    rating:8.4, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:10, title:"Joker",                              year:2019, genre:"Drama",     rating:8.4, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:11, title:"Dune",                               year:2021, genre:"Sci-Fi",    rating:8.0, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:12, title:"Your Name",                          year:2016, genre:"Animation", rating:8.4, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:13, title:"Knives Out",                         year:2019, genre:"Thriller",  rating:7.9, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:14, title:"Superbad",                           year:2007, genre:"Comedy",    rating:7.6, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:15, title:"Mad Max: Fury Road",                 year:2015, genre:"Action",    rating:8.1, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
+  { id:16, title:"Everything Everywhere All at Once",  year:2022, genre:"Sci-Fi",    rating:7.8, poster:"https://image.tmdb.org/t/p/w300/xxxxx.jpg" },
 ];
 
 
@@ -154,7 +152,9 @@ function renderGrid(list) {
     return `
       <div class="card-wrap">
         <div class="card">
-          <div class="card-poster">${m.emoji}</div>
+          <div class="card-poster">
+            <img src="${m.poster}" alt="${m.title}">
+          </div>
           <div class="card-body">
             <div class="card-title">${m.title}</div>
             <div class="card-year">${m.year}</div>
@@ -236,7 +236,9 @@ function renderWatchlist() {
   /* Buat baris HTML untuk setiap film di watchlist */
   el.innerHTML = watchlist.map(m => `
     <div class="watch-item">
-      <div class="watch-emoji">${m.emoji}</div>
+      <div class="card-poster">
+        <img src="${m.poster}" alt="${m.title}">
+      </div>
       <div class="watch-info">
         <div class="watch-title">${m.title}</div>
         <div class="watch-meta">${m.year} · ${m.genre} · ★ ${m.rating}</div>
