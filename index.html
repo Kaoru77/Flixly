@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineList — Movie Watchlist</title>
+
+  <!--
+  ============================================================
+  GOOGLE FONTS
+  Memuat font "DM Sans" dari internet.
+  Diletakkan di <head> agar font sudah siap sebelum halaman
+  dirender, mencegah teks berkedip saat berganti font.
+  ============================================================
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!--
+  ============================================================
+  TABLER ICONS
+  Library ikon open-source (5000+ ikon).
+  Digunakan untuk ikon play, trash, plus, bookmark, dll.
+  ============================================================
+  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <!--
+  ============================================================
+  FILE CSS
+  Menghubungkan file style.css yang berisi semua styling.
+  Diletakkan di <head> agar tampilan diterapkan sebelum
+  konten halaman muncul di layar.
+  ============================================================
+  -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<div class="container">
+
+  <!-- ============================================================
+  HEADER
+  Menampilkan nama aplikasi dan deskripsi singkat.
+  Ikon film dari Tabler Icons dipakai sebagai logo kecil.
+  ============================================================ -->
+  <div class="header">
+    <h1>
+      <i class="ti ti-movie"></i>
+      CineList
+    </h1>
+    <p>Cari film, filter genre &amp; rating, simpan ke watchlist, lalu langsung tonton</p>
+  </div>
+
+
+  <!-- ============================================================
+  SEARCH BAR
+  Dua elemen dalam satu baris (flexbox di CSS):
+  - Input teks  : user mengetik judul film
+  - Select      : user memilih rating minimum
+  Atribut oninput/onchange memanggil fungsi JS secara real-time.
+  ============================================================ -->
+  <div class="search-row">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Cari judul film..."
+      oninput="filterMovies()"
+    />
+    <select id="ratingFilter" onchange="filterMovies()">
+      <option value="">Semua rating</option>
+      <option value="9">⭐ 9+</option>
+      <option value="8">⭐ 8+</option>
+      <option value="7">⭐ 7+</option>
+      <option value="6">⭐ 6+</option>
+    </select>
+  </div>
+
+
+  <!-- ============================================================
+  FILTER GENRE
+  Tombol pil untuk memfilter berdasarkan genre.
+  - data-genre : nilai genre yang digunakan di JavaScript
+  - onclick    : memanggil setGenre() dengan nilai genre
+  - class pill active : ditandai aktif di CSS
+  ============================================================ -->
+  <div class="filters" id="genreFilters">
+    <span class="pill active" onclick="setGenre('')"           data-genre="">Semua</span>
+    <span class="pill"        onclick="setGenre('Drama')"      data-genre="Drama">Drama</span>
+    <span class="pill"        onclick="setGenre('Action')"     data-genre="Action">Action</span>
+    <span class="pill"        onclick="setGenre('Sci-Fi')"     data-genre="Sci-Fi">Sci-Fi</span>
+    <span class="pill"        onclick="setGenre('Comedy')"     data-genre="Comedy">Comedy</span>
+    <span class="pill"        onclick="setGenre('Thriller')"   data-genre="Thriller">Thriller</span>
+    <span class="pill"        onclick="setGenre('Animation')"  data-genre="Animation">Animation</span>
+  </div>
+
+
+  <!-- ============================================================
+  MOVIE GRID
+  Div kosong — diisi secara dinamis oleh fungsi renderGrid()
+  di JavaScript. Tidak ada konten HTML statis di sini.
+  ============================================================ -->
+  <div class="section-title">Hasil pencarian</div>
+  <div class="grid" id="movieGrid"></div>
+
+
+  <!-- ============================================================
+  WATCHLIST SECTION
+  Berisi judul section dengan badge angka, dan div kosong
+  yang diisi oleh renderWatchlist() di JavaScript.
+  ============================================================ -->
+  <div class="watchlist-section">
+    <div class="section-title">
+      Watchlist
+      <!-- Badge ini diperbarui angkanya oleh JavaScript -->
+      <span class="count-badge" id="watchCount">0</span>
+    </div>
+    <div id="watchlistItems"></div>
+  </div>
+
+
+</div><!-- /container -->
+
+
+<!--
+============================================================
+FILE JAVASCRIPT
+Diletakkan di bawah </body> (bukan di <head>) agar semua
+elemen HTML sudah ada di DOM sebelum script dijalankan.
+Jika diletakkan di <head>, script tidak akan menemukan
+elemen seperti #movieGrid karena belum dibuat.
+============================================================
+-->
+<script src="script.js"></script>
+
+</body>
+</html>
