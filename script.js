@@ -1,350 +1,189 @@
 /*
 ============================================================
 script.js — CineList
-File ini mengatur SELURUH logika dan interaktivitas aplikasi.
-Dipisah dari HTML agar lebih mudah dikembangkan dan dirawat.
+Satu file JS untuk index.html dan detail.html.
+Deteksi halaman dilakukan lewat kondisi elemen yang ada
+di DOM: jika #heroSection ada → halaman index,
+jika #detailHero ada → halaman detail.
 ============================================================
 */
 
 
 /* ============================================================
    1. KONFIGURASI TMDB API
-   - API_KEY  : kunci unik untuk mengakses TMDB API
-   - BASE_URL : endpoint utama TMDB untuk pencarian film
-   - IMG_URL  : base URL untuk menampilkan gambar poster
-                w300 = lebar poster 300px (cukup untuk kartu)
    ============================================================ */
 const API_KEY  = '80d6001f02cf7b601c6a2d99cf51fcc9';
-const BASE_URL = 'https://api.themoviedb.org/3';
-const IMG_URL  = 'https://image.tmdb.org/t/p/w300';
-
-/* Poster cadangan jika film tidak punya gambar di TMDB */
-const FALLBACK_POSTER = 'https://via.placeholder.com/300x450?text=No+Poster';
+const BASE     = 'https://api.themoviedb.org/3';
+const IMG_W300 = 'https://image.tmdb.org/t/p/w300';
+const IMG_W780 = 'https://image.tmdb.org/t/p/w780';
+const IMG_ORIG = 'https://image.tmdb.org/t/p/original';
+const IMG_FACE = 'https://image.tmdb.org/t/p/w185';
+const NO_POSTER= 'https://placehold.co/300x450/1a1a1a/888?text=No+Poster';
+const NO_FACE  = 'https://placehold.co/185x185/1a1a1a/888?text=?';
 
 
 /* ============================================================
    2. DATA PLATFORM STREAMING
-   Array berisi objek setiap platform. Setiap objek punya:
-   - name   : nama platform yang ditampilkan di popup
-   - color  : warna titik identitas brand
-   - search : URL pencarian — judul film ditambahkan di akhir
    ============================================================ */
 const platforms = [
-  { name: "Netflix",      color: "#E50914", search: "https://www.netflix.com/search?q=" },
-  { name: "Disney+",      color: "#1156BE", search: "https://www.disneyplus.com/search/" },
-  { name: "Prime Video",  color: "#00A8E0", search: "https://www.amazon.com/s?k=" },
-  { name: "Apple TV+",    color: "#555555", search: "https://tv.apple.com/search?term=" },
-  { name: "Vidio",        color: "#0066CC", search: "https://www.vidio.com/search?q=" },
-  { name: "YouTube",      color: "#FF0000", search: "https://www.youtube.com/results?search_query=" },
+  { name:"Netflix",     color:"#E50914", url:"https://www.netflix.com/search?q=" },
+  { name:"Disney+",     color:"#1156BE", url:"https://www.disneyplus.com/search/" },
+  { name:"Prime Video", color:"#00A8E0", url:"https://www.amazon.com/s?k=" },
+  { name:"Apple TV+",   color:"#555",    url:"https://tv.apple.com/search?term=" },
+  { name:"Vidio",       color:"#0066CC", url:"https://www.vidio.com/search?q=" },
+  { name:"YouTube",     color:"#FF0000", url:"https://www.youtube.com/results?search_query=" },
 ];
 
 
 /* ============================================================
-   3. DATA FILM (DAFTAR AWAL)
-   Array ini hanya berisi judul, tahun, genre, dan rating
-   sebagai data awal. Poster akan di-fetch otomatis dari
-   TMDB saat halaman dimuat pertama kali via fetchAllPosters().
+   3. STATE
    ============================================================ */
-const movies = [
-  { id:1,  title:"The Shawshank Redemption",           year:1994, genre:"Drama",     rating:9.3, poster:null },
-  { id:2,  title:"The Godfather",                      year:1972, genre:"Drama",     rating:9.2, poster:null },
-  { id:3,  title:"The Dark Knight",                    year:2008, genre:"Action",    rating:9.0, poster:null },
-  { id:4,  title:"Interstellar",                       year:2014, genre:"Sci-Fi",    rating:8.7, poster:null },
-  { id:5,  title:"Inception",                          year:2010, genre:"Sci-Fi",    rating:8.8, poster:null },
-  { id:6,  title:"Parasite",                           year:2019, genre:"Thriller",  rating:8.5, poster:null },
-  { id:7,  title:"Spirited Away",                      year:2001, genre:"Animation", rating:8.6, poster:null },
-  { id:8,  title:"The Grand Budapest Hotel",           year:2014, genre:"Comedy",    rating:8.1, poster:null },
-  { id:9,  title:"Avengers: Endgame",                  year:2019, genre:"Action",    rating:8.4, poster:null },
-  { id:10, title:"Joker",                              year:2019, genre:"Drama",     rating:8.4, poster:null },
-  { id:11, title:"Dune",                               year:2021, genre:"Sci-Fi",    rating:8.0, poster:null },
-  { id:12, title:"Your Name",                          year:2016, genre:"Animation", rating:8.4, poster:null },
-  { id:13, title:"Knives Out",                         year:2019, genre:"Thriller",  rating:7.9, poster:null },
-  { id:14, title:"Superbad",                           year:2007, genre:"Comedy",    rating:7.6, poster:null },
-  { id:15, title:"Mad Max: Fury Road",                 year:2015, genre:"Action",    rating:8.1, poster:null },
-  { id:16, title:"Everything Everywhere All at Once",  year:2022, genre:"Sci-Fi",    rating:7.8, poster:null },
-];
+let watchlist  = JSON.parse(localStorage.getItem('cinelist_watchlist') || '[]');
+let openPopup  = null;
+let searchTimer = null;
 
 
 /* ============================================================
-   4. STATE APLIKASI
-   Variabel global yang menyimpan kondisi saat ini:
-   - watchlist   : array film yang sudah ditambahkan user
-   - activeGenre : genre yang sedang difilter (kosong = semua)
-   - openPopup   : referensi ke elemen popup yang terbuka
+   4. HELPER: simpan watchlist ke localStorage
+   Agar watchlist tidak hilang saat halaman di-refresh.
    ============================================================ */
-let watchlist   = [];
-let activeGenre = '';
-let openPopup   = null;
-
-
-/* ============================================================
-   5. FUNGSI: fetchPoster(movie)
-   Mengambil URL poster satu film dari TMDB API.
-   - Memanggil endpoint /search/movie dengan judul + tahun
-   - Mengambil poster_path dari hasil pertama
-   - Menggabungkan IMG_URL + poster_path jadi URL lengkap
-   - Jika tidak ada poster, gunakan FALLBACK_POSTER
-   Menggunakan async/await agar kode mudah dibaca.
-   ============================================================ */
-async function fetchPoster(movie) {
-  try {
-    const url      = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movie.title)}&year=${movie.year}&language=en-US`;
-    const response = await fetch(url);
-    const data     = await response.json();
-
-    /* Ambil film pertama dari hasil pencarian */
-    const result = data.results && data.results[0];
-
-    /* Kembalikan URL poster lengkap, atau fallback jika tidak ada */
-    return result && result.poster_path
-      ? `${IMG_URL}${result.poster_path}`
-      : FALLBACK_POSTER;
-
-  } catch (err) {
-    /* Jika fetch gagal (misal: offline), gunakan fallback */
-    console.error(`Gagal fetch poster untuk: ${movie.title}`, err);
-    return FALLBACK_POSTER;
-  }
+function saveWatchlist() {
+  localStorage.setItem('cinelist_watchlist', JSON.stringify(watchlist));
 }
 
 
 /* ============================================================
-   6. FUNGSI: fetchAllPosters()
-   Mengambil poster semua film secara bersamaan (paralel)
-   menggunakan Promise.all agar lebih cepat daripada satu
-   per satu. Setelah semua poster didapat, properti .poster
-   di setiap objek film diperbarui, lalu grid di-render ulang.
+   5. HELPER: fetch wrapper
+   Memanggil TMDB API dan mengembalikan data JSON.
    ============================================================ */
-async function fetchAllPosters() {
-  /* Tampilkan loading sementara poster diambil */
-  showLoadingGrid();
-
-  /* Fetch semua poster secara paralel */
-  const posters = await Promise.all(movies.map(m => fetchPoster(m)));
-
-  /* Simpan URL poster ke masing-masing objek film */
-  movies.forEach((m, i) => { m.poster = posters[i]; });
-
-  /* Render ulang grid dengan poster yang sudah ada */
-  filterMovies();
+async function tmdb(path, params = {}) {
+  const url = new URL(`${BASE}${path}`);
+  url.searchParams.set('api_key', API_KEY);
+  url.searchParams.set('language', 'id-ID'); /* Bahasa Indonesia jika tersedia */
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url);
+  return res.json();
 }
 
 
 /* ============================================================
-   7. FUNGSI: showLoadingGrid()
-   Menampilkan skeleton loading (kartu abu-abu beranimasi)
-   sementara poster sedang di-fetch dari TMDB.
-   Memberikan feedback visual kepada user bahwa data sedang
-   dimuat, bukan halaman yang hang.
+   6. HELPER: buat kartu film HTML
+   Dipakai di index.html (row & grid) dan detail.html (rekomendasi).
    ============================================================ */
-function showLoadingGrid() {
-  const grid = document.getElementById('movieGrid');
-  grid.innerHTML = Array(8).fill(`
-    <div class="card skeleton">
-      <div class="card-poster skeleton-poster"></div>
-      <div class="card-body">
-        <div class="skeleton-line" style="width:80%;height:12px;margin-bottom:6px"></div>
-        <div class="skeleton-line" style="width:50%;height:10px;margin-bottom:6px"></div>
-        <div class="skeleton-line" style="width:60%;height:10px"></div>
+function movieCardHTML(m) {
+  const poster   = m.poster_path ? `${IMG_W300}${m.poster_path}` : NO_POSTER;
+  const year     = (m.release_date || '').slice(0,4) || '—';
+  const rating   = m.vote_average ? m.vote_average.toFixed(1) : '—';
+  const inList   = watchlist.some(w => w.id === m.id);
+  const safeTitle = (m.title || '').replace(/'/g, "\\'");
+
+  return `
+    <a class="movie-card" href="detail.html?id=${m.id}" title="${m.title}">
+      <div class="card-poster">
+        <img src="${poster}" alt="${m.title}" loading="lazy"
+             onerror="this.src='${NO_POSTER}'" />
+        <div class="poster-rating">★ ${rating}</div>
       </div>
-    </div>
-  `).join('');
+      <div class="card-body">
+        <div class="card-title">${m.title}</div>
+        <div class="card-year">${year}</div>
+        <button class="card-add-btn ${inList ? 'added' : ''}"
+                onclick="event.preventDefault(); toggleWatchCard(this, ${m.id}, '${safeTitle}', '${year}', '${poster}', '${rating}')">
+          <i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i>
+          ${inList ? 'Tersimpan' : 'Watchlist'}
+        </button>
+      </div>
+    </a>`;
 }
 
 
 /* ============================================================
-   8. FUNGSI: searchTMDB()
-   Dipanggil saat user mengetik di search bar.
-   Jika query >= 2 karakter, fetch hasil pencarian dari TMDB
-   secara real-time dan tampilkan hasilnya.
-   Jika query kosong, kembali tampilkan daftar film awal.
+   7. HELPER: isi row dengan kartu film
    ============================================================ */
-async function searchTMDB() {
-  const q = document.getElementById('searchInput').value.trim();
+function fillRow(rowId, movies) {
+  const el = document.getElementById(rowId);
+  if (!el) return;
+  el.innerHTML = movies.map(movieCardHTML).join('');
+}
 
-  /* Jika kosong atau terlalu pendek, tampilkan data awal */
-  if (q.length < 2) {
-    filterMovies();
-    return;
+
+/* ============================================================
+   8. HELPER: scroll row kiri/kanan
+   Dipanggil oleh tombol panah di setiap section.
+   dir: -1 = kiri, 1 = kanan
+   ============================================================ */
+function scrollRow(rowId, dir) {
+  const el = document.getElementById(rowId);
+  if (el) el.scrollBy({ left: dir * 600, behavior: 'smooth' });
+}
+
+
+/* ============================================================
+   9. FUNGSI: toggleWatchCard
+   Tambah/hapus film dari watchlist, dipanggil dari tombol
+   di kartu. Menerima data dasar film sebagai parameter
+   karena kita tidak punya objek penuh di sini.
+   ============================================================ */
+function toggleWatchCard(btn, id, title, year, poster, rating) {
+  const idx = watchlist.findIndex(w => w.id === id);
+  if (idx === -1) {
+    watchlist.push({ id, title, year, poster, rating });
+  } else {
+    watchlist.splice(idx, 1);
   }
+  saveWatchlist();
 
-  showLoadingGrid();
+  /* Update tampilan tombol yang diklik */
+  const inList = watchlist.some(w => w.id === id);
+  btn.className = `card-add-btn ${inList ? 'added' : ''}`;
+  btn.innerHTML = `<i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i> ${inList ? 'Tersimpan' : 'Watchlist'}`;
 
-  try {
-    const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
-    const url       = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(q)}&language=en-US`;
-    const response  = await fetch(url);
-    const data      = await response.json();
+  /* Sinkronisasi semua tombol dengan id yang sama di halaman */
+  document.querySelectorAll('.card-add-btn').forEach(b => {
+    if (b !== btn && b.closest('.movie-card') &&
+        b.closest('.movie-card').href && b.closest('.movie-card').href.includes(`id=${id}`)) {
+      b.className = `card-add-btn ${inList ? 'added' : ''}`;
+      b.innerHTML = `<i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i> ${inList ? 'Tersimpan' : 'Watchlist'}`;
+    }
+  });
 
-    /* Ubah format data TMDB ke format yang dipakai app */
-    const results = (data.results || [])
-      .filter(m => m.poster_path && m.vote_average >= minRating)
-      .slice(0, 20) /* Batasi 20 hasil */
-      .map((m, i) => ({
-        id:     `tmdb_${m.id}`,
-        title:  m.title,
-        year:   m.release_date ? m.release_date.slice(0, 4) : '—',
-        genre:  'Film',              /* Genre detail butuh request tambahan */
-        rating: m.vote_average.toFixed(1),
-        poster: `${IMG_URL}${m.poster_path}`,
-      }));
-
-    renderGrid(results);
-
-  } catch (err) {
-    console.error('Gagal mencari film:', err);
-    filterMovies(); /* Fallback ke data lokal */
-  }
+  /* Re-render watchlist section jika ada */
+  renderWatchlistSection();
 }
 
 
 /* ============================================================
-   9. FUNGSI: setGenre(genre)
-   Dipanggil saat user mengklik tombol pil genre.
+   10. FUNGSI: renderWatchlistSection
+   Menampilkan daftar watchlist di index.html.
    ============================================================ */
-function setGenre(g) {
-  activeGenre = g;
-  document.querySelectorAll('.pill').forEach(p =>
-    p.classList.toggle('active', p.dataset.genre === g)
-  );
-  filterMovies();
-}
-
-
-/* ============================================================
-   10. FUNGSI: filterMovies()
-   Menyaring array movies lokal berdasarkan rating dan genre.
-   Pencarian judul ditangani oleh searchTMDB() secara terpisah.
-   ============================================================ */
-function filterMovies() {
-  const q         = document.getElementById('searchInput').value.toLowerCase();
-  const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
-
-  const filtered = movies.filter(m =>
-    m.title.toLowerCase().includes(q) &&
-    m.rating >= minRating &&
-    (activeGenre === '' || m.genre === activeGenre)
-  );
-
-  renderGrid(filtered);
-}
-
-
-/* ============================================================
-   11. FUNGSI: renderGrid(list)
-   Mengubah array film menjadi kartu HTML dan
-   menyuntikkannya ke #movieGrid.
-   ============================================================ */
-function renderGrid(list) {
-  const grid = document.getElementById('movieGrid');
-
-  if (!list.length) {
-    grid.innerHTML = `
-      <div class="empty" style="grid-column:1/-1">
-        <i class="ti ti-movie-off"></i>
-        Film tidak ditemukan
-      </div>`;
-    return;
-  }
-
-  grid.innerHTML = list.map(m => {
-    const inList     = watchlist.find(w => w.id === m.id);
-    const posterSrc  = m.poster || FALLBACK_POSTER;
-
-    return `
-      <div class="card-wrap">
-        <div class="card">
-          <div class="card-poster">
-            <img src="${posterSrc}"
-                 alt="Poster ${m.title}"
-                 onerror="this.src='${FALLBACK_POSTER}'" />
-          </div>
-          <div class="card-body">
-            <div class="card-title">${m.title}</div>
-            <div class="card-year">${m.year}</div>
-            <div class="card-rating">
-              <span class="star">★</span>
-              <span class="rating-val">${m.rating}</span>
-            </div>
-            <span class="badge">${m.genre}</span>
-            <div class="btn-row">
-              <button class="add-btn ${inList ? 'added' : ''}"
-                      onclick="toggleWatch('${m.id}')">
-                <i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i>
-              </button>
-              <button class="stream-btn"
-                      onclick="showPlatformPopup(this, '${m.title.replace(/'/g,"\\'")}')">
-                <i class="ti ti-player-play"></i> Tonton
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-
-/* ============================================================
-   12. FUNGSI: toggleWatch(id)
-   Menambah atau menghapus film dari watchlist.
-   Mencari di movies lokal dulu, jika tidak ada (hasil TMDB
-   search), ambil dari data yang sudah dirender di DOM.
-   ============================================================ */
-function toggleWatch(id) {
-  /* Cari di data lokal dulu */
-  let movie = movies.find(m => m.id == id);
-
-  /* Jika tidak ada (hasil search TMDB), cari di watchlist */
-  if (!movie) {
-    movie = watchlist.find(w => w.id == id);
-  }
-
-  if (!movie) return;
-
-  const idx = watchlist.findIndex(w => w.id == id);
-  if (idx === -1) watchlist.push(movie);
-  else            watchlist.splice(idx, 1);
-
-  filterMovies();
-  renderWatchlist();
-}
-
-
-/* ============================================================
-   13. FUNGSI: renderWatchlist()
-   Mengubah array watchlist menjadi daftar HTML.
-   ============================================================ */
-function renderWatchlist() {
+function renderWatchlistSection() {
   const el = document.getElementById('watchlistItems');
-  document.getElementById('watchCount').textContent = watchlist.length;
+  const countEl = document.getElementById('watchCount');
+  if (!el) return;
+
+  if (countEl) countEl.textContent = watchlist.length;
 
   if (!watchlist.length) {
-    el.innerHTML = `
-      <div class="empty">
-        <i class="ti ti-bookmark"></i>
-        Belum ada film di watchlist
-      </div>`;
+    el.innerHTML = '<p class="empty-text"><i class="ti ti-bookmark"></i><br>Belum ada film di watchlist</p>';
     return;
   }
 
   el.innerHTML = watchlist.map(m => {
-    const posterSrc = m.poster || FALLBACK_POSTER;
+    const safeTitle = m.title.replace(/'/g, "\\'");
     return `
-      <div class="watch-item">
-        <div class="watch-thumb">
-          <img src="${posterSrc}" alt="Poster ${m.title}"
-               onerror="this.src='${FALLBACK_POSTER}'" />
+      <div class="watch-item" id="witem_${m.id}">
+        <div class="watch-thumb" onclick="window.location='detail.html?id=${m.id}'">
+          <img src="${m.poster}" alt="${m.title}" onerror="this.src='${NO_POSTER}'" />
         </div>
-        <div class="watch-info">
+        <div class="watch-info" onclick="window.location='detail.html?id=${m.id}'">
           <div class="watch-title">${m.title}</div>
-          <div class="watch-meta">${m.year} · ${m.genre} · ★ ${m.rating}</div>
+          <div class="watch-meta">${m.year} · ★ ${m.rating}</div>
         </div>
         <div class="watch-actions">
-          <button class="watch-stream-btn"
-                  onclick="showPlatformPopup(this, '${m.title.replace(/'/g,"\\'")}')">
+          <button class="btn-sm" onclick="showWatchPopup(this, '${safeTitle}')">
             <i class="ti ti-player-play"></i> Tonton
           </button>
-          <button class="remove-btn" onclick="toggleWatch('${m.id}')">
+          <button class="btn-sm danger" onclick="removeFromWatchlist(${m.id})">
             <i class="ti ti-trash"></i>
           </button>
         </div>
@@ -354,33 +193,36 @@ function renderWatchlist() {
 
 
 /* ============================================================
-   14. FUNGSI: showPlatformPopup(btn, movieTitle)
-   Menampilkan popup pilihan platform streaming.
+   11. FUNGSI: removeFromWatchlist
    ============================================================ */
-function showPlatformPopup(btn, movieTitle) {
-  if (openPopup) { openPopup.remove(); openPopup = null; return; }
+function removeFromWatchlist(id) {
+  watchlist = watchlist.filter(w => w.id !== id);
+  saveWatchlist();
+  renderWatchlistSection();
+}
 
+
+/* ============================================================
+   12. FUNGSI: showWatchPopup
+   Popup pilihan platform di watchlist.
+   ============================================================ */
+function showWatchPopup(btn, title) {
+  if (openPopup) { openPopup.remove(); openPopup = null; return; }
   const popup = document.createElement('div');
   popup.className = 'platform-popup';
   popup.innerHTML = platforms.map(p => `
-    <a class="platform-item"
-       href="${p.search}${encodeURIComponent(movieTitle)}"
-       target="_blank"
-       rel="noopener noreferrer">
+    <a class="platform-item" href="${p.url}${encodeURIComponent(title)}"
+       target="_blank" rel="noopener noreferrer">
       <span class="platform-dot" style="background:${p.color}"></span>
       ${p.name}
-      <i class="ti ti-external-link" style="margin-left:auto;font-size:12px;color:#aaa"></i>
-    </a>
-  `).join('');
-
-  btn.closest('.card-wrap, .watch-item').appendChild(popup);
+      <i class="ti ti-external-link" style="margin-left:auto;font-size:12px;color:#555"></i>
+    </a>`).join('');
+  btn.closest('.watch-item').appendChild(popup);
   openPopup = popup;
 }
 
-document.addEventListener('click', function(e) {
-  if (openPopup &&
-      !openPopup.contains(e.target) &&
-      !e.target.closest('.stream-btn, .watch-stream-btn')) {
+document.addEventListener('click', e => {
+  if (openPopup && !openPopup.contains(e.target) && !e.target.closest('.btn-sm')) {
     openPopup.remove();
     openPopup = null;
   }
@@ -388,10 +230,364 @@ document.addEventListener('click', function(e) {
 
 
 /* ============================================================
-   15. INISIALISASI
-   Saat halaman dimuat:
-   1. fetchAllPosters() — ambil poster semua film dari TMDB
-   2. renderWatchlist() — tampilkan watchlist (kosong dulu)
+   13. FUNGSI: handleSearch
+   Debounce 400ms agar tidak terlalu banyak request saat user
+   masih mengetik. Setelah 400ms berhenti mengetik, baru fetch.
    ============================================================ */
-fetchAllPosters();
-renderWatchlist();
+function handleSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    const q = document.getElementById('navSearch').value.trim();
+    if (!q) {
+      hideFilterSection();
+      return;
+    }
+    showFilterSection(`Hasil: "${q}"`);
+    document.getElementById('filterGrid').innerHTML = skeletonGrid(12);
+    try {
+      const data = await tmdb('/search/movie', { query: q });
+      fillGrid('filterGrid', data.results || []);
+    } catch { fillGrid('filterGrid', []); }
+  }, 400);
+}
+
+
+/* ============================================================
+   14. FUNGSI: applyNavFilter
+   Filter genre + tahun dari navbar. Memanggil TMDB
+   /discover/movie dengan parameter genre_id dan year.
+   ============================================================ */
+async function applyNavFilter() {
+  const genreId = document.getElementById('navGenre')?.value || '';
+  const year    = document.getElementById('navYear')?.value  || '';
+
+  if (!genreId && !year) { hideFilterSection(); return; }
+
+  const genreLabel = document.getElementById('navGenre')?.selectedOptions[0]?.text || '';
+  const yearLabel  = document.getElementById('navYear')?.selectedOptions[0]?.text  || '';
+  const label      = [genreLabel, yearLabel].filter(Boolean).join(' · ');
+
+  showFilterSection(label);
+  document.getElementById('filterGrid').innerHTML = skeletonGrid(12);
+
+  const params = {};
+  if (genreId) params.with_genres = genreId;
+  if (year)    params.primary_release_year = year;
+
+  try {
+    const data = await tmdb('/discover/movie', { ...params, sort_by: 'popularity.desc' });
+    fillGrid('filterGrid', data.results || []);
+  } catch { fillGrid('filterGrid', []); }
+}
+
+
+/* ============================================================
+   15. HELPER: tampilkan/sembunyikan filterSection
+   ============================================================ */
+function showFilterSection(title) {
+  const sec = document.getElementById('filterSection');
+  if (sec) {
+    sec.style.display = 'block';
+    document.getElementById('filterTitle').innerHTML = `<i class="ti ti-filter"></i> ${title}`;
+  }
+}
+function hideFilterSection() {
+  const sec = document.getElementById('filterSection');
+  if (sec) sec.style.display = 'none';
+}
+
+
+/* ============================================================
+   16. HELPER: isi grid penuh (hasil filter/search)
+   ============================================================ */
+function fillGrid(gridId, movies) {
+  const el = document.getElementById(gridId);
+  if (!el) return;
+  if (!movies.length) {
+    el.innerHTML = '<p class="empty-text" style="grid-column:1/-1">Film tidak ditemukan</p>';
+    return;
+  }
+  el.innerHTML = movies.map(movieCardHTML).join('');
+}
+
+
+/* ============================================================
+   17. HELPER: skeleton grid loading
+   ============================================================ */
+function skeletonGrid(n) {
+  return Array(n).fill(`
+    <div class="movie-card" style="pointer-events:none">
+      <div class="card-poster" style="aspect-ratio:2/3;background:linear-gradient(90deg,#1a1a1a 25%,#242424 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.4s infinite"></div>
+      <div class="card-body">
+        <div style="height:12px;width:80%;border-radius:4px;margin-bottom:6px;background:linear-gradient(90deg,#1a1a1a 25%,#242424 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.4s infinite"></div>
+        <div style="height:10px;width:50%;border-radius:4px;background:linear-gradient(90deg,#1a1a1a 25%,#242424 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.4s infinite"></div>
+      </div>
+    </div>`).join('');
+}
+
+
+/* ============================================================
+   ██████████████████████████████████
+   INDEX PAGE — fungsi khusus beranda
+   ██████████████████████████████████
+   ============================================================ */
+
+/* ============================================================
+   18. INIT INDEX
+   Dipanggil saat halaman index.html dimuat.
+   Fetch trending, populer, top rated secara paralel.
+   ============================================================ */
+async function initIndex() {
+  /* Cek apakah ada query search dari URL (dari detail page) */
+  const urlQ = new URLSearchParams(location.search).get('q');
+  if (urlQ) {
+    document.getElementById('navSearch').value = urlQ;
+    handleSearch();
+  }
+
+  renderWatchlistSection();
+
+  /* Fetch semua section sekaligus (paralel) */
+  const [trending, popular, topRated] = await Promise.all([
+    tmdb('/trending/movie/day'),
+    tmdb('/movie/popular'),
+    tmdb('/movie/top_rated'),
+  ]);
+
+  /* Hero: pakai film trending pertama */
+  renderHero(trending.results?.[0]);
+
+  /* Isi setiap row */
+  fillRow('trendingRow',  trending.results  || []);
+  fillRow('popularRow',   popular.results   || []);
+  fillRow('topRatedRow',  topRated.results  || []);
+}
+
+
+/* ============================================================
+   19. FUNGSI: renderHero
+   Menampilkan banner besar film pertama dari trending.
+   Backdrop image diambil dari TMDB dengan ukuran original.
+   ============================================================ */
+function renderHero(movie) {
+  const hero = document.getElementById('heroSection');
+  if (!hero || !movie) return;
+
+  const backdrop = movie.backdrop_path
+    ? `${IMG_ORIG}${movie.backdrop_path}`
+    : (movie.poster_path ? `${IMG_W780}${movie.poster_path}` : '');
+
+  const year   = (movie.release_date || '').slice(0,4);
+  const rating = movie.vote_average?.toFixed(1) || '—';
+  const inList = watchlist.some(w => w.id === movie.id);
+  const poster = movie.poster_path ? `${IMG_W300}${movie.poster_path}` : NO_POSTER;
+  const safeTitle = movie.title.replace(/'/g, "\\'");
+
+  hero.innerHTML = `
+    <div class="hero-bg" style="background-image:url('${backdrop}')"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><i class="ti ti-flame"></i> Trending #1</div>
+      <h1 class="hero-title">${movie.title}</h1>
+      <div class="hero-meta">
+        <span class="star">★</span><span>${rating}</span>
+        <span>${year}</span>
+      </div>
+      <div class="hero-actions">
+        <a class="btn-primary" href="detail.html?id=${movie.id}">
+          <i class="ti ti-info-circle"></i> Lihat Detail
+        </a>
+        <button class="btn-secondary" id="heroBtnAdd"
+                onclick="toggleWatchCard(this, ${movie.id}, '${safeTitle}', '${year}', '${poster}', '${rating}')">
+          <i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i>
+          ${inList ? 'Tersimpan' : 'Simpan ke Watchlist'}
+        </button>
+      </div>
+    </div>`;
+}
+
+
+/* ============================================================
+   ████████████████████████████████████
+   DETAIL PAGE — fungsi khusus detail.html
+   ████████████████████████████████████
+   ============================================================ */
+
+/* ============================================================
+   20. INIT DETAIL
+   Membaca id film dari URL (?id=xxx), lalu fetch:
+   - detail film (judul, sinopsis, genre, durasi)
+   - credits (cast & crew)
+   - rekomendasi film serupa
+   Semua fetch berjalan paralel dengan Promise.all.
+   ============================================================ */
+async function initDetail() {
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { window.location = 'index.html'; return; }
+
+  try {
+    const [detail, credits, similar] = await Promise.all([
+      tmdb(`/movie/${id}`),
+      tmdb(`/movie/${id}/credits`),
+      tmdb(`/movie/${id}/similar`),
+    ]);
+
+    renderDetailHero(detail);
+    renderSynopsis(detail);
+    renderCast(credits.cast || []);
+    renderRecommendations(similar.results || []);
+
+    /* Update title tab browser */
+    document.title = `${detail.title} — CineList`;
+
+  } catch (err) {
+    console.error('Gagal load detail film:', err);
+    document.getElementById('detailHero').innerHTML =
+      '<p class="empty-text">Gagal memuat data film. Coba lagi.</p>';
+  }
+}
+
+
+/* ============================================================
+   21. FUNGSI: renderDetailHero
+   Menampilkan backdrop besar + poster + info utama film.
+   ============================================================ */
+function renderDetailHero(m) {
+  const hero = document.getElementById('detailHero');
+  if (!hero) return;
+
+  const backdrop = m.backdrop_path
+    ? `${IMG_ORIG}${m.backdrop_path}`
+    : (m.poster_path ? `${IMG_W780}${m.poster_path}` : '');
+
+  const poster   = m.poster_path ? `${IMG_W300}${m.poster_path}` : NO_POSTER;
+  const year     = (m.release_date || '').slice(0,4);
+  const rating   = m.vote_average?.toFixed(1) || '—';
+  const runtime  = m.runtime ? `${Math.floor(m.runtime/60)}j ${m.runtime%60}m` : '';
+  const genres   = (m.genres || []).map(g => `<span class="genre-badge">${g.name}</span>`).join('');
+  const inList   = watchlist.some(w => w.id === m.id);
+  const safeTitle = m.title.replace(/'/g, "\\'");
+
+  hero.innerHTML = `
+    <div class="detail-backdrop" style="background-image:url('${backdrop}')"></div>
+    <div class="detail-content">
+      <div class="detail-poster">
+        <img src="${poster}" alt="${m.title}" onerror="this.src='${NO_POSTER}'" />
+      </div>
+      <div class="detail-info">
+        <div class="detail-genres">${genres}</div>
+        <h1 class="detail-title">${m.title}</h1>
+        <div class="detail-meta">
+          <span class="rating">★ ${rating}</span>
+          <span>${year}</span>
+          ${runtime ? `<span>${runtime}</span>` : ''}
+          ${m.original_language ? `<span>${m.original_language.toUpperCase()}</span>` : ''}
+        </div>
+        <div class="detail-actions">
+          <button class="btn-primary" id="detailBtnAdd"
+                  onclick="toggleWatchDetail(${m.id}, '${safeTitle}', '${year}', '${poster}', '${rating}')">
+            <i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i>
+            ${inList ? 'Tersimpan' : 'Simpan ke Watchlist'}
+          </button>
+          ${platforms.slice(0,3).map(p => `
+            <a class="btn-secondary" href="${p.url}${encodeURIComponent(m.title)}"
+               target="_blank" rel="noopener">
+              <span class="platform-dot" style="background:${p.color}"></span> ${p.name}
+            </a>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+
+/* ============================================================
+   22. FUNGSI: toggleWatchDetail
+   Tombol watchlist di halaman detail — sama seperti
+   toggleWatchCard tapi update tombol yang berbeda.
+   ============================================================ */
+function toggleWatchDetail(id, title, year, poster, rating) {
+  const idx = watchlist.findIndex(w => w.id === id);
+  if (idx === -1) watchlist.push({ id, title, year, poster, rating });
+  else            watchlist.splice(idx, 1);
+  saveWatchlist();
+
+  const inList = watchlist.some(w => w.id === id);
+  const btn    = document.getElementById('detailBtnAdd');
+  if (btn) {
+    btn.innerHTML = `<i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i> ${inList ? 'Tersimpan' : 'Simpan ke Watchlist'}`;
+  }
+}
+
+
+/* ============================================================
+   23. FUNGSI: renderSynopsis
+   Tampilkan sinopsis film. Jika kosong, sembunyikan section.
+   ============================================================ */
+function renderSynopsis(m) {
+  const sec = document.getElementById('synopsisSection');
+  const el  = document.getElementById('synopsis');
+  if (!sec || !el) return;
+
+  if (m.overview) {
+    el.textContent = m.overview;
+    sec.style.display = 'block';
+  }
+}
+
+
+/* ============================================================
+   24. FUNGSI: renderCast
+   Tampilkan 20 pemeran pertama dalam scroll horizontal.
+   Foto aktor diambil dari TMDB /person/{id}.
+   ============================================================ */
+function renderCast(cast) {
+  const sec = document.getElementById('castSection');
+  const row = document.getElementById('castRow');
+  if (!sec || !row || !cast.length) return;
+
+  row.innerHTML = cast.slice(0, 20).map(c => {
+    const photo = c.profile_path
+      ? `${IMG_FACE}${c.profile_path}`
+      : NO_FACE;
+    return `
+      <div class="cast-card">
+        <div class="cast-photo">
+          <img src="${photo}" alt="${c.name}" loading="lazy"
+               onerror="this.src='${NO_FACE}'" />
+        </div>
+        <div class="cast-name">${c.name}</div>
+        <div class="cast-role">${c.character || '—'}</div>
+      </div>`;
+  }).join('');
+
+  sec.style.display = 'block';
+}
+
+
+/* ============================================================
+   25. FUNGSI: renderRecommendations
+   Film serupa dari TMDB, tampilkan dalam scroll horizontal.
+   ============================================================ */
+function renderRecommendations(movies) {
+  const sec = document.getElementById('recSection');
+  const row = document.getElementById('recRow');
+  if (!sec || !row) return;
+
+  if (!movies.length) return;
+
+  row.innerHTML = movies.slice(0, 20).map(movieCardHTML).join('');
+  sec.style.display = 'block';
+}
+
+
+/* ============================================================
+   26. DETEKSI HALAMAN & JALANKAN INIT YANG SESUAI
+   Cek elemen mana yang ada di DOM untuk tahu di halaman mana
+   kita berada, lalu jalankan fungsi init yang tepat.
+   ============================================================ */
+if (document.getElementById('heroSection')) {
+  /* Halaman index.html */
+  initIndex();
+} else if (document.getElementById('detailHero')) {
+  /* Halaman detail.html */
+  initDetail();
+}

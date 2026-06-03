@@ -1,26 +1,34 @@
 /*
 ============================================================
 style.css — CineList
-File ini mengatur SELURUH tampilan visual aplikasi.
+Styling untuk index.html dan detail.html
 ============================================================
 */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #F9F8F6;
-  --surface:      #FFFFFF;
-  --border:       #E8E6E0;
-  --text:         #1A1A18;
-  --muted:        #8A8880;
-  --accent:       #D85A30;
-  --accent-light: #FAF0EB;
-  --star:         #EF9F27;
-  --success:      #3B6D11;
-  --success-bg:   #EAF3DE;
-  --radius:       12px;
+  --bg:           #0F0F0F;      /* Latar gelap ala bioskop */
+  --surface:      #1A1A1A;      /* Permukaan kartu */
+  --surface2:     #242424;      /* Permukaan lebih terang */
+  --border:       #2E2E2E;      /* Garis tepi */
+  --text:         #F0F0F0;      /* Teks utama */
+  --muted:        #888;         /* Teks abu */
+  --accent:       #E8B74A;      /* Kuning emas */
+  --accent2:      #D85A30;      /* Oranye aksen */
+  --star:         #E8B74A;
+  --success:      #4CAF50;
+  --radius:       10px;
   --radius-sm:    6px;
+  --nav-h:        64px;
 }
+
+/* ============================================================
+   SCROLLBAR kustom agar sesuai tema gelap
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 body {
   font-family: 'DM Sans', sans-serif;
@@ -29,139 +37,444 @@ body {
   min-height: 100vh;
 }
 
-.container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+/* ============================================================
+   NAVBAR
+   Sticky di atas, blur background agar konten di bawahnya
+   tetap terbaca saat halaman di-scroll.
+   ============================================================ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  background: rgba(15,15,15,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
 
-/* HEADER */
-.header { margin-bottom: 2rem; }
-.header h1 { font-size: 26px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-.header h1 i { color: var(--accent); font-size: 24px; }
-.header p { font-size: 14px; color: var(--muted); margin-top: 5px; }
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-/* SEARCH BAR */
-.search-row { display: flex; gap: 10px; margin-bottom: 1rem; }
-input[type="text"], select {
+/* Logo */
+.nav-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Filter genre & tahun */
+.nav-filters { display: flex; gap: 8px; }
+
+select {
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  padding: 10px 14px;
+  font-size: 13px;
+  padding: 7px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: var(--surface2);
   color: var(--text);
   outline: none;
+  cursor: pointer;
   transition: border-color .15s;
 }
-input[type="text"] { flex: 1; }
-input[type="text"]:focus, select:focus { border-color: var(--accent); }
+select:focus, select:hover { border-color: var(--accent); }
 
-/* GENRE PILLS */
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.75rem; }
-.pill {
-  font-size: 13px; padding: 5px 14px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--surface);
-  color: var(--muted); cursor: pointer; transition: all .15s; user-select: none;
+/* Search bar */
+.nav-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  transition: border-color .15s;
 }
-.pill:hover { border-color: var(--accent); color: var(--accent); }
-.pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-search:focus-within { border-color: var(--accent); }
+.nav-search i { color: var(--muted); font-size: 16px; }
+.nav-search input {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  background: none;
+  border: none;
+  color: var(--text);
+  outline: none;
+  padding: 8px 0;
+}
+.nav-search input::placeholder { color: var(--muted); }
 
-/* SECTION TITLE */
-.section-title {
-  font-size: 12px; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px;
+/* MAIN CONTENT */
+.main-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
 }
 
-/* MOVIE GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 14px;
-  margin-bottom: 2.5rem;
+/* ============================================================
+   HERO — index.html
+   Banner besar film trending pertama. Background menggunakan
+   gambar backdrop dari TMDB dengan gradient overlay agar
+   teks di atas terbaca.
+   ============================================================ */
+.hero {
+  margin: 0 -1.5rem 2.5rem;
+  height: 480px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* KARTU FILM */
-.card-wrap { position: relative; }
-.card {
+.hero-skeleton {
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+  animation: shimmer 1.4s infinite;
+  background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  transition: opacity .5s;
+}
+
+/* Gradient gelap dari bawah agar teks terbaca */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(15,15,15,0) 30%,
+    rgba(15,15,15,.7) 65%,
+    rgba(15,15,15,1) 100%
+  );
+}
+
+.hero-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 2.5rem;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: #000;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.hero-title {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.hero-meta {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-meta .star { color: var(--star); }
+
+.hero-actions { display: flex; gap: 10px; }
+
+/* Tombol di hero */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+  text-decoration: none;
+}
+.btn-primary:hover { opacity: .85; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,.15);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+}
+.btn-secondary:hover { background: rgba(255,255,255,.22); }
+
+/* ============================================================
+   ROW SECTION
+   Section dengan judul + tombol scroll kanan/kiri.
+   ============================================================ */
+.row-section { margin-bottom: 2.5rem; }
+
+.row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.row-title {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.row-title i { color: var(--accent); }
+
+.scroll-btns { display: flex; gap: 6px; }
+.scroll-btns button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: border-color .15s, background .15s;
+  padding: 0;
+  font-family: inherit;
+}
+.scroll-btns button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================================
+   MOVIE ROW — scroll horizontal
+   overflow-x: auto + no-wrap membuat kartu berjejer ke kanan.
+   scrollbar disembunyikan agar tampak rapi.
+   ============================================================ */
+.movie-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 8px;
+  /* Sembunyikan scrollbar tapi tetap bisa di-scroll */
+  scrollbar-width: none;
+}
+.movie-row::-webkit-scrollbar { display: none; }
+
+.row-loading {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  gap: 12px;
+}
+.row-loading::before,
+.row-loading::after,
+.row-loading + .row-loading {
+  content: '';
+  flex: 0 0 148px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ============================================================
+   KARTU FILM
+   ============================================================ */
+.movie-card {
+  flex: 0 0 148px;          /* Lebar tetap agar row bisa scroll */
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: transform .15s, box-shadow .15s;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
-.card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+.movie-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  border-color: var(--accent);
+}
 
-/* ============================================================
-   POSTER — gambar dari TMDB
-   aspect-ratio 2/3 menjaga proporsi poster bioskop.
-   object-fit: cover memastikan gambar memenuhi kotak
-   tanpa stretch meskipun ukuran aslinya berbeda.
-   ============================================================ */
-.card-poster {
+.movie-card .card-poster {
   width: 100%;
   aspect-ratio: 2/3;
-  background: var(--bg);
   overflow: hidden;
+  background: var(--surface2);
+  position: relative;
 }
-.card-poster img {
+.movie-card .card-poster img {
   width: 100%;
   height: 100%;
-  object-fit: cover;   /* Gambar memenuhi kotak, crop jika perlu */
+  object-fit: cover;
   display: block;
   transition: transform .3s;
 }
-.card:hover .card-poster img { transform: scale(1.04); } /* Zoom halus saat hover */
+.movie-card:hover .card-poster img { transform: scale(1.06); }
 
-.card-body { padding: 10px 12px 12px; }
-.card-title {
-  font-size: 13px; font-weight: 600; line-height: 1.35; margin-bottom: 3px;
-  display: -webkit-box; 
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
-.card-year { font-size: 11px; color: var(--muted); }
-.card-rating { display: flex; align-items: center; gap: 4px; margin: 5px 0; }
-.star { color: var(--star); font-size: 12px; }
-.rating-val { font-size: 12px; font-weight: 600; }
-.badge {
-  display: inline-block; font-size: 10px; padding: 2px 7px;
-  border-radius: var(--radius-sm); background: var(--accent-light);
-  color: var(--accent); font-weight: 500; margin-bottom: 8px;
-}
-.btn-row { display: flex; gap: 6px; }
-
-/* SKELETON LOADING */
-.skeleton { pointer-events: none; }
-.skeleton-poster {
-  width: 100%; aspect-ratio: 2/3;
-  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-.skeleton-line {
+/* Rating overlay di pojok poster */
+.poster-rating {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,.75);
+  color: var(--star);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-@keyframes shimmer {
-  from { background-position: 200% 0; }
-  to   { background-position: -200% 0; }
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
-/* TOMBOL */
-button {
-  font-family: 'DM Sans', sans-serif; font-size: 11px; padding: 5px 8px;
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text); cursor: pointer;
-  transition: all .15s; display: flex; align-items: center; gap: 4px;
+.movie-card .card-body { padding: 8px 10px 10px; }
+.movie-card .card-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-button:hover { border-color: var(--accent); color: var(--accent); }
-.add-btn.added { background: var(--success-bg); border-color: var(--success); color: var(--success); }
-.stream-btn { flex: 1; justify-content: center; }
+.movie-card .card-year { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
 
-/* POPUP PLATFORM */
+/* Tombol watchlist kecil di kartu */
+.card-add-btn {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all .15s;
+}
+.card-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.card-add-btn.added { border-color: var(--success); color: var(--success); background: rgba(76,175,80,.1); }
+
+/* ============================================================
+   GRID PENUH (hasil filter/search)
+   ============================================================ */
+.movie-grid-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 14px;
+}
+.movie-grid-full .movie-card { flex: unset; }
+
+/* ============================================================
+   WATCHLIST LIST
+   ============================================================ */
+.watch-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.watch-thumb {
+  width: 50px;
+  height: 75px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface2);
+  cursor: pointer;
+}
+.watch-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.watch-info { flex: 1; cursor: pointer; }
+.watch-title { font-size: 14px; font-weight: 600; }
+.watch-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.watch-actions { display: flex; gap: 6px; }
+
+.btn-sm {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all .15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm.danger { border-color: #5a1a1a; color: #e06060; }
+.btn-sm.danger:hover { background: rgba(224,96,96,.1); border-color: #e06060; }
+
+/* Platform popup */
 .platform-popup {
-  position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 100;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 6px; min-width: 170px;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  min-width: 170px;
   animation: popIn .12s ease;
 }
 @keyframes popIn {
@@ -169,55 +482,217 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .platform-item {
-  display: flex; align-items: center; gap: 9px; padding: 7px 10px;
-  border-radius: 4px; text-decoration: none; color: var(--text);
-  font-size: 13px; transition: background .1s;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  transition: background .1s;
 }
-.platform-item:hover { background: var(--bg); }
+.platform-item:hover { background: var(--surface); }
 .platform-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-/* WATCHLIST SECTION */
-.watchlist-section { border-top: 1px solid var(--border); padding-top: 1.75rem; }
-.watch-item {
-  display: flex; align-items: center; gap: 14px; padding: 12px 0;
-  border-bottom: 1px solid var(--border); position: relative;
+/* Badge watchlist count */
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--accent2);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.empty-text {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 2;
 }
 
 /* ============================================================
-   THUMBNAIL POSTER DI WATCHLIST
-   Ukuran kecil (50x75px) agar tidak terlalu besar di daftar.
-   border-radius memberi sudut melengkung pada thumbnail.
+   DETAIL PAGE — detail.html
    ============================================================ */
-.watch-thumb {
-  width: 50px;
-  height: 75px;
-  border-radius: 6px;
+.back-btn-wrap { padding: 1.25rem 0 0; }
+.back-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.back-btn:hover { color: var(--text); border-color: var(--accent); }
+
+/* Hero detail — backdrop besar */
+.detail-hero {
+  margin: 1.25rem -1.5rem 0;
+  min-height: 420px;
+  position: relative;
   overflow: hidden;
-  flex-shrink: 0;     /* Tidak menyusut walau ruang sempit */
-  background: var(--bg);
 }
-.watch-thumb img {
+
+.detail-skeleton {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  height: 420px;
+  background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
 }
 
-.watch-info { flex: 1; }
-.watch-title { font-size: 14px; font-weight: 600; }
-.watch-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.watch-actions { display: flex; gap: 6px; }
-.remove-btn { border-color: #F0B8B8; color: #A32D2D; }
-.remove-btn:hover { background: #FCEBEB; border-color: #A32D2D; color: #A32D2D; }
-
-/* BADGE JUMLAH */
-.count-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px;
-  background: var(--accent); color: #fff; font-size: 11px;
-  font-weight: 600; margin-left: 7px;
+.detail-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+}
+.detail-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(15,15,15,.3) 0%,
+    rgba(15,15,15,.6) 50%,
+    rgba(15,15,15,1) 100%
+  );
 }
 
-/* PESAN KOSONG */
-.empty { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; }
-.empty i { font-size: 32px; display: block; margin-bottom: 10px; }
+.detail-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 2.5rem;
+  align-items: flex-end;
+  min-height: 420px;
+}
+
+/* Poster kecil di detail */
+.detail-poster {
+  flex: 0 0 180px;
+  aspect-ratio: 2/3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  border: 2px solid rgba(255,255,255,.1);
+}
+.detail-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.detail-info { flex: 1; }
+
+.detail-genres { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.genre-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(232,183,74,.4);
+  color: var(--accent);
+  background: rgba(232,183,74,.08);
+}
+
+.detail-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.detail-meta .rating { color: var(--star); font-weight: 600; }
+
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Sections di detail page */
+.detail-section { margin: 2.5rem 0; }
+.detail-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.synopsis-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #ccc;
+  max-width: 800px;
+}
+
+/* ============================================================
+   CAST ROW — scroll horizontal
+   ============================================================ */
+.cast-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.cast-row::-webkit-scrollbar { display: none; }
+
+.cast-card {
+  flex: 0 0 110px;
+  text-align: center;
+}
+
+.cast-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 8px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+}
+.cast-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.cast-name { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; }
+.cast-role { font-size: 11px; color: var(--muted); }
+
+/* ============================================================
+   SHIMMER ANIMATION
+   ============================================================ */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .nav-filters { display: none; }
+  .hero { height: 320px; }
+  .hero-title { font-size: 22px; }
+  .detail-content { flex-direction: column; align-items: flex-start; padding: 1.5rem; }
+  .detail-poster { flex: 0 0 auto; width: 120px; }
+  .detail-title { font-size: 22px; }
+}

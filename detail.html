@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Film — FLIXLY</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <i class="ti ti-movie"></i> FLIXLY
+      </a>
+      <div class="nav-filters">
+        <select id="navGenre" onchange="window.location='index.html'">
+          <option value="">Semua Genre</option>
+        </select>
+        <select id="navYear" onchange="window.location='index.html'">
+          <option value="">Semua Tahun</option>
+        </select>
+      </div>
+      <div class="nav-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="navSearch" placeholder="Cari film..."
+               onkeydown="if(event.key==='Enter') window.location='index.html?q='+encodeURIComponent(this.value)" />
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- ================================================
+    BACK BUTTON
+    Tombol kembali ke halaman sebelumnya.
+    ================================================ -->
+    <div class="back-btn-wrap">
+      <button class="back-btn" onclick="history.back()">
+        <i class="ti ti-arrow-left"></i> Kembali
+      </button>
+    </div>
+
+    <!-- ================================================
+    HERO DETAIL
+    Backdrop besar + poster + info film utama.
+    Diisi oleh JavaScript setelah fetch dari TMDB.
+    ================================================ -->
+    <div id="detailHero" class="detail-hero">
+      <div class="detail-skeleton"></div>
+    </div>
+
+    <!-- ================================================
+    SINOPSIS
+    ================================================ -->
+    <section class="detail-section" id="synopsisSection" style="display:none">
+      <h3 class="detail-section-title">Sinopsis</h3>
+      <p id="synopsis" class="synopsis-text"></p>
+    </section>
+
+    <!-- ================================================
+    PEMERAN / CAST
+    Scroll horizontal daftar aktor.
+    ================================================ -->
+    <section class="detail-section" id="castSection" style="display:none">
+      <div class="row-header">
+        <h3 class="detail-section-title">Pemeran</h3>
+        <div class="scroll-btns">
+          <button onclick="scrollRow('castRow', -1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('castRow', 1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="cast-row" id="castRow"></div>
+    </section>
+
+    <!-- ================================================
+    REKOMENDASI FILM
+    Film serupa dari TMDB, scroll horizontal.
+    ================================================ -->
+    <section class="detail-section" id="recSection" style="display:none">
+      <div class="row-header">
+        <h3 class="detail-section-title">Film Serupa</h3>
+        <div class="scroll-btns">
+          <button onclick="scrollRow('recRow', -1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('recRow', 1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="movie-row" id="recRow"></div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

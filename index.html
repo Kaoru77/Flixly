@@ -3,134 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FLIXLY — Movie Watchlist</title>
-
-  <!--
-  ============================================================
-  GOOGLE FONTS
-  Memuat font "DM Sans" dari internet.
-  Diletakkan di <head> agar font sudah siap sebelum halaman
-  dirender, mencegah teks berkedip saat berganti font.
-  ============================================================
-  -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-
-  <!--
-  ============================================================
-  TABLER ICONS
-  Library ikon open-source (5000+ ikon).
-  Digunakan untuk ikon play, trash, plus, bookmark, dll.
-  ============================================================
-  -->
+  <title>CineList</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-
-  <!--
-  ============================================================
-  FILE CSS
-  Menghubungkan file style.css yang berisi semua styling.
-  Diletakkan di <head> agar tampilan diterapkan sebelum
-  konten halaman muncul di layar.
-  ============================================================
-  -->
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-<div class="container">
 
-  <!-- ============================================================
-  HEADER
-  Menampilkan nama aplikasi dan deskripsi singkat.
-  Ikon film dari Tabler Icons dipakai sebagai logo kecil.
-  ============================================================ -->
-  <div class="header">
-    <h1>
-      <i class="ti ti-movie"></i>
-      FLIXLY
-    </h1>
-    <p>Cari film, filter genre &amp; rating, simpan ke watchlist, lalu langsung tonton</p>
-  </div>
+  <!-- ================================================
+  NAVBAR
+  Berisi logo, filter genre & tahun, tombol search.
+  Position sticky agar tetap terlihat saat scroll.
+  ================================================ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <i class="ti ti-movie"></i> FLIXLY
+      </a>
 
+      <!-- Filter Genre di navbar -->
+      <div class="nav-filters">
+        <select id="navGenre" onchange="applyNavFilter()">
+          <option value="">Semua Genre</option>
+          <option value="28">Action</option>
+          <option value="35">Comedy</option>
+          <option value="18">Drama</option>
+          <option value="27">Horror</option>
+          <option value="10749">Romance</option>
+          <option value="878">Sci-Fi</option>
+          <option value="53">Thriller</option>
+          <option value="16">Animation</option>
+        </select>
 
-  <!-- ============================================================
-  SEARCH BAR
-  Dua elemen dalam satu baris (flexbox di CSS):
-  - Input teks  : user mengetik judul film
-  - Select      : user memilih rating minimum
-  Atribut oninput/onchange memanggil fungsi JS secara real-time.
-  ============================================================ -->
-  <div class="search-row">
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Cari judul film..."
-      oninput="searchTMDB()"
-    />
-    <select id="ratingFilter" onchange="filterMovies()">
-      <option value="">Semua rating</option>
-      <option value="9">⭐ 9+</option>
-      <option value="8">⭐ 8+</option>
-      <option value="7">⭐ 7+</option>
-      <option value="6">⭐ 6+</option>
-    </select>
-  </div>
+        <!-- Filter Tahun di navbar -->
+        <select id="navYear" onchange="applyNavFilter()">
+          <option value="">Semua Tahun</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2019">2019</option>
+          <option value="2015">2010–2015</option>
+          <option value="2010">2000–2010</option>
+        </select>
+      </div>
 
-
-  <!-- ============================================================
-  FILTER GENRE
-  Tombol pil untuk memfilter berdasarkan genre.
-  - data-genre : nilai genre yang digunakan di JavaScript
-  - onclick    : memanggil setGenre() dengan nilai genre
-  - class pill active : ditandai aktif di CSS
-  ============================================================ -->
-  <div class="filters" id="genreFilters">
-    <span class="pill active" onclick="setGenre('')"           data-genre="">Semua</span>
-    <span class="pill"        onclick="setGenre('Drama')"      data-genre="Drama">Drama</span>
-    <span class="pill"        onclick="setGenre('Action')"     data-genre="Action">Action</span>
-    <span class="pill"        onclick="setGenre('Sci-Fi')"     data-genre="Sci-Fi">Sci-Fi</span>
-    <span class="pill"        onclick="setGenre('Comedy')"     data-genre="Comedy">Comedy</span>
-    <span class="pill"        onclick="setGenre('Thriller')"   data-genre="Thriller">Thriller</span>
-    <span class="pill"        onclick="setGenre('Animation')"  data-genre="Animation">Animation</span>
-  </div>
-
-
-  <!-- ============================================================
-  MOVIE GRID
-  Div kosong — diisi secara dinamis oleh fungsi renderGrid()
-  di JavaScript. Tidak ada konten HTML statis di sini.
-  ============================================================ -->
-  <div class="section-title">Hasil pencarian</div>
-  <div class="grid" id="movieGrid"></div>
-
-
-  <!-- ============================================================
-  WATCHLIST SECTION
-  Berisi judul section dengan badge angka, dan div kosong
-  yang diisi oleh renderWatchlist() di JavaScript.
-  ============================================================ -->
-  <div class="watchlist-section">
-    <div class="section-title">
-      Watchlist
-      <!-- Badge ini diperbarui angkanya oleh JavaScript -->
-      <span class="count-badge" id="watchCount">0</span>
+      <!-- Search bar di navbar -->
+      <div class="nav-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="navSearch" placeholder="Cari film..." oninput="handleSearch()" />
+      </div>
     </div>
-    <div id="watchlistItems"></div>
-  </div>
+  </nav>
 
+  <main class="main-content">
 
-</div><!-- /container -->
+    <!-- ================================================
+    HERO SECTION
+    Banner besar film trending pertama sebagai highlight.
+    ================================================ -->
+    <section class="hero" id="heroSection">
+      <div class="hero-skeleton"></div>
+    </section>
 
+    <!-- ================================================
+    SECTION: TRENDING
+    Film trending hari ini dari TMDB, scroll horizontal.
+    ================================================ -->
+    <section class="row-section">
+      <div class="row-header">
+        <h2 class="row-title"><i class="ti ti-flame"></i> Trending Hari Ini</h2>
+        <div class="scroll-btns">
+          <button onclick="scrollRow('trendingRow', -1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('trendingRow', 1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="movie-row" id="trendingRow">
+        <div class="row-loading"></div>
+      </div>
+    </section>
 
-<!--
-============================================================
-FILE JAVASCRIPT
-Diletakkan di bawah </body> (bukan di <head>) agar semua
-elemen HTML sudah ada di DOM sebelum script dijalankan.
-Jika diletakkan di <head>, script tidak akan menemukan
-elemen seperti #movieGrid karena belum dibuat.
-============================================================
--->
-<script src="script.js"></script>
+    <!-- ================================================
+    SECTION: POPULER
+    Film terpopuler dari TMDB, scroll horizontal.
+    ================================================ -->
+    <section class="row-section">
+      <div class="row-header">
+        <h2 class="row-title"><i class="ti ti-star"></i> Paling Populer</h2>
+        <div class="scroll-btns">
+          <button onclick="scrollRow('popularRow', -1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('popularRow', 1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="movie-row" id="popularRow">
+        <div class="row-loading"></div>
+      </div>
+    </section>
 
+    <!-- ================================================
+    SECTION: TOP RATED
+    Film rating tertinggi sepanjang masa.
+    ================================================ -->
+    <section class="row-section">
+      <div class="row-header">
+        <h2 class="row-title"><i class="ti ti-award"></i> Rating Tertinggi</h2>
+        <div class="scroll-btns">
+          <button onclick="scrollRow('topRatedRow', -1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('topRatedRow', 1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="movie-row" id="topRatedRow">
+        <div class="row-loading"></div>
+      </div>
+    </section>
+
+    <!-- ================================================
+    SECTION: HASIL FILTER / SEARCH
+    Muncul saat user mencari atau memfilter genre/tahun.
+    Tersembunyi secara default.
+    ================================================ -->
+    <section class="row-section" id="filterSection" style="display:none">
+      <div class="row-header">
+        <h2 class="row-title" id="filterTitle"><i class="ti ti-filter"></i> Hasil Filter</h2>
+      </div>
+      <div class="movie-grid-full" id="filterGrid"></div>
+    </section>
+
+    <!-- ================================================
+    WATCHLIST SECTION
+    Film yang disimpan user.
+    ================================================ -->
+    <section class="row-section" id="watchlistSection">
+      <div class="row-header">
+        <h2 class="row-title">
+          <i class="ti ti-bookmark"></i> Watchlist
+          <span class="count-badge" id="watchCount">0</span>
+        </h2>
+      </div>
+      <div id="watchlistItems">
+        <p class="empty-text"><i class="ti ti-bookmark"></i><br>Belum ada film di watchlist</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
