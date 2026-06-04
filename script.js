@@ -1,6 +1,6 @@
 /*
 ============================================================
-script.js — CineList
+script.js — FLIXLY
 Satu file JS untuk index.html dan detail.html.
 Deteksi halaman dilakukan lewat kondisi elemen yang ada
 di DOM: jika #heroSection ada → halaman index,
@@ -13,7 +13,7 @@ jika #detailHero ada → halaman detail.
    1. KONFIGURASI TMDB API
    ============================================================ */
 const API_KEY  = '80d6001f02cf7b601c6a2d99cf51fcc9';
-const BASE     = 'https://api.themoviedb.org/3';
+const BASE     = 'https://api.themoviedb.org/3'; 
 const IMG_W300 = 'https://image.tmdb.org/t/p/w300';
 const IMG_W780 = 'https://image.tmdb.org/t/p/w780';
 const IMG_ORIG = 'https://image.tmdb.org/t/p/original';
