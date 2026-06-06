@@ -38,7 +38,7 @@ const platforms = [
 /* ============================================================
    3. STATE
    ============================================================ */
-let watchlist  = JSON.parse(localStorage.getItem('cinelist_watchlist') || '[]');
+let watchlist  = JSON.parse(localStorage.getItem('Flixly_watchlist') || '[]');
 let openPopup  = null;
 let searchTimer = null;
 
@@ -48,7 +48,7 @@ let searchTimer = null;
    Agar watchlist tidak hilang saat halaman di-refresh.
    ============================================================ */
 function saveWatchlist() {
-  localStorage.setItem('cinelist_watchlist', JSON.stringify(watchlist));
+  localStorage.setItem('Flixly_watchlist', JSON.stringify(watchlist));
 }
 
 
@@ -437,7 +437,7 @@ async function initDetail() {
     renderRecommendations(similar.results || []);
 
     /* Update title tab browser */
-    document.title = `${detail.title} — CineList`;
+    document.title = `${detail.title} — Flixly`;
 
   } catch (err) {
     console.error('Gagal load detail film:', err);
