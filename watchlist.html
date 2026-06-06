@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watchlist — FLIXLY</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <i class="ti ti-movie"></i> FLIXLY
+      </a>
+      <a class="nav-watchlist-btn active" href="watchlist.html">
+        <i class="ti ti-bookmark"></i>
+        <span class="wl-text">Watchlist</span>
+        <span class="wl-badge" id="navBadge">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <div class="watchlist-header">
+      <h1><i class="ti ti-bookmark"></i> Watchlist Saya</h1>
+      <p id="wlSubtitle" class="wl-subtitle"></p>
+    </div>
+
+    <!-- Daftar film -->
+    <div id="watchlistContainer">
+      <!-- diisi JS -->
+    </div>
+
+    <!-- Popup pilih platform -->
+    <div id="platformModal" class="modal-overlay" style="display:none" onclick="closePlatformModal(event)">
+      <div class="modal-box">
+        <div class="modal-title">Tonton di mana?</div>
+        <div id="platformLinks"></div>
+        <button class="modal-close" onclick="document.getElementById('platformModal').style.display='none'">
+          Tutup
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

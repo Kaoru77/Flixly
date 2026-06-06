@@ -17,118 +17,79 @@
         <i class="ti ti-movie"></i> FLIXLY
       </a>
 
-      <!-- Genre filter di navbar -->
-      <div class="nav-filters">
-        <select id="navGenre" onchange="applyNavFilter()">
-          <option value="">Semua Genre</option>
-          <option value="28">Action</option>
-          <option value="35">Comedy</option>
-          <option value="18">Drama</option>
-          <option value="27">Horror</option>
-          <option value="10749">Romance</option>
-          <option value="878">Sci-Fi</option>
-          <option value="53">Thriller</option>
-          <option value="16">Animation</option>
-        </select>
+      <!-- Filter genre -->
+      <select id="navGenre" onchange="applyFilter()">
+        <option value="">Semua Genre</option>
+        <option value="28">Action</option>
+        <option value="35">Comedy</option>
+        <option value="18">Drama</option>
+        <option value="27">Horror</option>
+        <option value="10749">Romance</option>
+        <option value="878">Sci-Fi</option>
+        <option value="53">Thriller</option>
+        <option value="16">Animasi</option>
+      </select>
 
-         <!-- Filter tahun di navbar -->
-        <select id="navYear" onchange="applyNavFilter()">
-          <option value="">Semua Tahun</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-          <option value="2020">2020</option>
-          <option value="2019">2019</option>
-          <option value="2015">2010–2015</option>
-          <option value="2010">2000–2010</option>
-        </select>
-      </div>
-
-      <!-- Pencarian di navbar -->
+      <!-- Search -->
       <div class="nav-search">
         <i class="ti ti-search"></i>
         <input type="text" id="navSearch" placeholder="Cari film..." oninput="handleSearch()" />
       </div>
+
+      <!-- Link ke Watchlist -->
+      <a class="nav-watchlist-btn" href="watchlist.html">
+        <i class="ti ti-bookmark"></i>
+        <span class="wl-text">Watchlist</span>
+        <span class="wl-badge" id="navBadge">0</span>
+      </a>
     </div>
   </nav>
 
   <main class="main-content">
 
-    <!-- Banner besar -->
-    <section class="hero" id="heroSection">
-      <div class="hero-skeleton"></div>
-    </section>
-
-    <!-- Filter hasil pencarian atau filter genre/tahun, muncul di bagian atas halaman utama, tersembunyi secara default. -->
-    <section class="row-section" id="filterSection" style="display:none">
-      <div class="row-header">
-        <h2 class="row-title" id="filterTitle"><i class="ti ti-filter"></i> Hasil Filter</h2>
+    <!-- Hasil pencarian / filter -->
+    <section id="filterSection" style="display:none">
+      <div class="section-header">
+        <h2 id="filterTitle"><i class="ti ti-search"></i> Hasil</h2>
+        <button class="clear-btn" onclick="clearFilter()"><i class="ti ti-x"></i> Hapus Filter</button>
       </div>
-      <div class="movie-grid-full" id="filterGrid"></div>
+      <div class="movie-grid" id="filterGrid"></div>
     </section>
 
-    <!--film trending hari ini, data diambil dari tmdb juga -->
-    <section class="row-section">
-      <div class="row-header">
-        <h2 class="row-title"><i class="ti ti-flame"></i> Trending Hari Ini</h2>
+    <!-- Trending -->
+    <section class="movie-section" id="mainSections">
+      <div class="section-header">
+        <h2><i class="ti ti-flame"></i> Trending Hari Ini</h2>
         <div class="scroll-btns">
-          <button onclick="scrollRow('trendingRow', -1)"><i class="ti ti-chevron-left"></i></button>
-          <button onclick="scrollRow('trendingRow', 1)"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="scrollRow('trendingRow',-1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('trendingRow',1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
-      <div class="movie-row" id="trendingRow">
-        <div class="row-loading"></div>
-      </div>
+      <div class="movie-row" id="trendingRow"><div class="loading-row"></div></div>
     </section>
 
-    <!--film populer saat ini, data diambil dari tmdb juga-->
-    <section class="row-section">
-      <div class="row-header">
-        <h2 class="row-title"><i class="ti ti-star"></i> Paling Populer</h2>
+    <!-- Populer -->
+    <section class="movie-section">
+      <div class="section-header">
+        <h2><i class="ti ti-star"></i> Paling Populer</h2>
         <div class="scroll-btns">
-          <button onclick="scrollRow('popularRow', -1)"><i class="ti ti-chevron-left"></i></button>
-          <button onclick="scrollRow('popularRow', 1)"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="scrollRow('popularRow',-1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('popularRow',1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
-      <div class="movie-row" id="popularRow">
-        <div class="row-loading"></div>
-      </div>
+      <div class="movie-row" id="popularRow"><div class="loading-row"></div></div>
     </section>
 
-    <!--film dengan rating tertinggi, data diambil dari tmdb juga-->
-    <section class="row-section">
-      <div class="row-header">
-        <h2 class="row-title"><i class="ti ti-award"></i> Rating Tertinggi</h2>
+    <!-- Rating Tertinggi -->
+    <section class="movie-section">
+      <div class="section-header">
+        <h2><i class="ti ti-award"></i> Rating Tertinggi</h2>
         <div class="scroll-btns">
-          <button onclick="scrollRow('topRatedRow', -1)"><i class="ti ti-chevron-left"></i></button>
-          <button onclick="scrollRow('topRatedRow', 1)"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="scrollRow('topRatedRow',-1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('topRatedRow',1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
-      <div class="movie-row" id="topRatedRow">
-        <div class="row-loading"></div>
-      </div>
-    </section>
-
-    <!--hasil filter-->
-    <section class="row-section" id="filterSection" style="display:none">
-      <div class="row-header">
-        <h2 class="row-title" id="filterTitle"><i class="ti ti-filter"></i> Hasil Filter</h2>
-      </div>
-      <div class="movie-grid-full" id="filterGrid"></div>
-    </section>
-
-    <!--film yang sudah ditambahkan ke watchlist, data disimpan di localStorage browser.-->
-    <section class="row-section" id="watchlistSection">
-      <div class="row-header">
-        <h2 class="row-title">
-          <i class="ti ti-bookmark"></i> Watchlist
-          <span class="count-badge" id="watchCount">0</span>
-        </h2>
-      </div>
-      <div id="watchlistItems">
-        <p class="empty-text"><i class="ti ti-bookmark"></i><br>Belum ada film di watchlist</p>
-      </div>
+      <div class="movie-row" id="topRatedRow"><div class="loading-row"></div></div>
     </section>
 
   </main>

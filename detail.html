@@ -16,50 +16,53 @@
       <a class="nav-logo" href="index.html">
         <i class="ti ti-movie"></i> FLIXLY
       </a>
-      <div class="nav-search">
-        <i class="ti ti-search"></i>
-        <input type="text" id="navSearch" placeholder="Cari film..."
-               onkeydown="if(event.key==='Enter') window.location='index.html?q='+encodeURIComponent(this.value)" />
-      </div>
+      <a class="nav-watchlist-btn" href="watchlist.html">
+        <i class="ti ti-bookmark"></i>
+        <span class="wl-text">Watchlist</span>
+        <span class="wl-badge" id="navBadge">0</span>
+      </a>
     </div>
   </nav>
+
   <main class="main-content">
-    <div class="back-btn-wrap">
+
+    <div class="back-wrap">
       <button class="back-btn" onclick="history.back()">
         <i class="ti ti-arrow-left"></i> Kembali
       </button>
     </div>
 
-    <!-- menampilkan gambar backdrop besar,judul,info utama film di bagian hero halaman detail. -->
-    <div id="detailHero" class="detail-hero">
+    <!-- Info film -->
+    <div id="detailBox" class="detail-box">
+      <!-- diisi JS -->
       <div class="detail-skeleton"></div>
     </div>
 
-    <!-- sinopsis film di halaman detail diambil dari tmdb -->
-    <section class="detail-section" id="synopsisSection" style="display:none">
-      <h3 class="detail-section-title">Sinopsis</h3>
+    <!-- Sinopsis -->
+    <section id="synopsisSection" style="display:none" class="detail-section">
+      <h3 class="section-title">Sinopsis</h3>
       <p id="synopsis" class="synopsis-text"></p>
     </section>
 
-    <!-- pemeran utama di film seperti biasa data diambil dari tmdb -->
-    <section class="detail-section" id="castSection" style="display:none">
-      <div class="row-header">
-        <h3 class="detail-section-title">Pemeran</h3>
+    <!-- Pemeran -->
+    <section id="castSection" style="display:none" class="detail-section">
+      <div class="section-header">
+        <h3 class="section-title">Pemeran</h3>
         <div class="scroll-btns">
-          <button onclick="scrollRow('castRow', -1)"><i class="ti ti-chevron-left"></i></button>
-          <button onclick="scrollRow('castRow', 1)"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="scrollRow('castRow',-1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('castRow',1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
       <div class="cast-row" id="castRow"></div>
     </section>
 
-    <!-- rekomendasi film yang serupa -->
-    <section class="detail-section" id="recSection" style="display:none">
-      <div class="row-header">
-        <h3 class="detail-section-title">Film Serupa</h3>
+    <!-- Film Serupa -->
+    <section id="recSection" style="display:none" class="detail-section">
+      <div class="section-header">
+        <h3 class="section-title">Film Serupa</h3>
         <div class="scroll-btns">
-          <button onclick="scrollRow('recRow', -1)"><i class="ti ti-chevron-left"></i></button>
-          <button onclick="scrollRow('recRow', 1)"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="scrollRow('recRow',-1)"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="scrollRow('recRow',1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
       <div class="movie-row" id="recRow"></div>
