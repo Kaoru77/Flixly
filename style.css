@@ -720,3 +720,36 @@ select:hover, select:focus { border-color: var(--accent); }
   .btn-sm .btn-label { display: none; }
   .btn-sm { padding: 7px 9px; }
 }
+.footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem 1.5rem;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--muted);
+}
+.footer-logo {
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.footer-text a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.footer-text a:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .footer-inner { justify-content: center; text-align: center; }
+}
