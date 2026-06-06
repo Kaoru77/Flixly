@@ -10,18 +10,14 @@
 </head>
 <body>
 
-  <!-- ================================================
-  NAVBAR
-  Berisi logo, filter genre & tahun, tombol search.
-  Position sticky agar tetap terlihat saat scroll.
-  ================================================ -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-inner">
       <a class="nav-logo" href="index.html">
         <i class="ti ti-movie"></i> FLIXLY
       </a>
 
-      <!-- Filter Genre di navbar -->
+      <!-- Genre filter di navbar -->
       <div class="nav-filters">
         <select id="navGenre" onchange="applyNavFilter()">
           <option value="">Semua Genre</option>
@@ -35,7 +31,7 @@
           <option value="16">Animation</option>
         </select>
 
-        <!-- Filter Tahun di navbar -->
+         <!-- Filter tahun di navbar -->
         <select id="navYear" onchange="applyNavFilter()">
           <option value="">Semua Tahun</option>
           <option value="2024">2024</option>
@@ -49,7 +45,7 @@
         </select>
       </div>
 
-      <!-- Search bar di navbar -->
+      <!-- Pencarian di navbar -->
       <div class="nav-search">
         <i class="ti ti-search"></i>
         <input type="text" id="navSearch" placeholder="Cari film..." oninput="handleSearch()" />
@@ -59,19 +55,12 @@
 
   <main class="main-content">
 
-    <!-- ================================================
-    HERO SECTION
-    Banner besar film trending pertama sebagai highlight.
-    ================================================ -->
+    <!-- Banner besar -->
     <section class="hero" id="heroSection">
       <div class="hero-skeleton"></div>
     </section>
 
-    <!-- ================================================
-    SECTION: HASIL FILTER / SEARCH
-    Muncul saat user mencari atau memfilter genre/tahun.
-    Tersembunyi secara default.
-    ================================================ -->
+    <!-- Filter hasil pencarian atau filter genre/tahun, muncul di bagian atas halaman utama, tersembunyi secara default. -->
     <section class="row-section" id="filterSection" style="display:none">
       <div class="row-header">
         <h2 class="row-title" id="filterTitle"><i class="ti ti-filter"></i> Hasil Filter</h2>
@@ -79,10 +68,7 @@
       <div class="movie-grid-full" id="filterGrid"></div>
     </section>
 
-    <!-- ================================================
-    SECTION: TRENDING
-    Film trending hari ini dari TMDB, scroll horizontal.
-    ================================================ -->
+    <!--film trending hari ini, data diambil dari tmdb juga -->
     <section class="row-section">
       <div class="row-header">
         <h2 class="row-title"><i class="ti ti-flame"></i> Trending Hari Ini</h2>
@@ -96,10 +82,7 @@
       </div>
     </section>
 
-    <!-- ================================================
-    SECTION: POPULER
-    Film terpopuler dari TMDB, scroll horizontal.
-    ================================================ -->
+    <!--film populer saat ini, data diambil dari tmdb juga-->
     <section class="row-section">
       <div class="row-header">
         <h2 class="row-title"><i class="ti ti-star"></i> Paling Populer</h2>
@@ -113,10 +96,7 @@
       </div>
     </section>
 
-    <!-- ================================================
-    SECTION: TOP RATED
-    Film rating tertinggi sepanjang masa.
-    ================================================ -->
+    <!--film dengan rating tertinggi, data diambil dari tmdb juga-->
     <section class="row-section">
       <div class="row-header">
         <h2 class="row-title"><i class="ti ti-award"></i> Rating Tertinggi</h2>
@@ -130,11 +110,7 @@
       </div>
     </section>
 
-    <!-- ================================================
-    SECTION: HASIL FILTER / SEARCH
-    Muncul saat user mencari atau memfilter genre/tahun.
-    Tersembunyi secara default.
-    ================================================ -->
+    <!--hasil filter-->
     <section class="row-section" id="filterSection" style="display:none">
       <div class="row-header">
         <h2 class="row-title" id="filterTitle"><i class="ti ti-filter"></i> Hasil Filter</h2>
@@ -142,10 +118,7 @@
       <div class="movie-grid-full" id="filterGrid"></div>
     </section>
 
-    <!-- ================================================
-    WATCHLIST SECTION
-    Film yang disimpan user.
-    ================================================ -->
+    <!--film yang sudah ditambahkan ke watchlist, data disimpan di localStorage browser.-->
     <section class="row-section" id="watchlistSection">
       <div class="row-header">
         <h2 class="row-title">

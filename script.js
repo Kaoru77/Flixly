@@ -1,17 +1,5 @@
-/*
-============================================================
-script.js — FLIXLY
-Satu file JS untuk index.html dan detail.html.
-Deteksi halaman dilakukan lewat kondisi elemen yang ada
-di DOM: jika #heroSection ada → halaman index,
-jika #detailHero ada → halaman detail.
-============================================================
-*/
 
-
-/* ============================================================
-   1. KONFIGURASI TMDB API
-   ============================================================ */
+ //tempat penyimpadan data base url dan api key
 const API_KEY  = '80d6001f02cf7b601c6a2d99cf51fcc9';
 const BASE     = 'https://api.themoviedb.org/3';
 const IMG_W300 = 'https://image.tmdb.org/t/p/w300';
@@ -22,9 +10,8 @@ const NO_POSTER= 'https://placehold.co/300x450/1a1a1a/888?text=No+Poster';
 const NO_FACE  = 'https://placehold.co/185x185/1a1a1a/888?text=?';
 
 
-/* ============================================================
-   2. DATA PLATFORM STREAMING
-   ============================================================ */
+
+  //tempat nonton dimana saja film tersebut ada
 const platforms = [
   { name:"Netflix",     color:"#E50914", url:"https://www.netflix.com/search?q=" },
   { name:"Disney+",     color:"#1156BE", url:"https://www.disneyplus.com/search/" },
@@ -34,28 +21,23 @@ const platforms = [
   { name:"YouTube",     color:"#FF0000", url:"https://www.youtube.com/results?search_query=" },
 ];
 
-
-/* ============================================================
-   3. STATE
-   ============================================================ */
+  //watchlisht yang disimpan dilocal srorage broser, dan fitur untuk popup pilihan platform saat klik tombol detail,
+  // Tidak lemot saat kamu mengetik judul film di kolom pencarian
+  
 let watchlist  = JSON.parse(localStorage.getItem('Flixly_watchlist') || '[]');
 let openPopup  = null;
 let searchTimer = null;
 
 
-/* ============================================================
-   4. HELPER: simpan watchlist ke localStorage
-   Agar watchlist tidak hilang saat halaman di-refresh.
-   ============================================================ */
+  // simpan watchlist ke localStorage
+  // Agar watchlist tidak hilang saat halaman di-refresh.
+  
 function saveWatchlist() {
   localStorage.setItem('Flixly_watchlist', JSON.stringify(watchlist));
 }
 
-
-/* ============================================================
-   5. HELPER: fetch wrapper
-   Memanggil TMDB API dan mengembalikan data JSON.
-   ============================================================ */
+   
+   ///Memanggil TMDB API dan mengembalikan data JSON.
 async function tmdb(path, params = {}) {
   const url = new URL(`${BASE}${path}`);
   url.searchParams.set('api_key', API_KEY);
@@ -66,10 +48,7 @@ async function tmdb(path, params = {}) {
 }
 
 
-/* ============================================================
-   6. HELPER: buat kartu film HTML
-   Dipakai di index.html (row & grid) dan detail.html (rekomendasi).
-   ============================================================ */
+// Membuat HTML untuk kartu film, dipakai di banyak tempat (row, grid, rekomendasi).
 function movieCardHTML(m) {
   const poster   = m.poster_path ? `${IMG_W300}${m.poster_path}` : NO_POSTER;
   const year     = (m.release_date || '').slice(0,4) || '—';
@@ -97,9 +76,7 @@ function movieCardHTML(m) {
 }
 
 
-/* ============================================================
-   7. HELPER: isi row dengan kartu film
-   ============================================================ */
+// isi horizontal (trending, popular, top rated) dengan data film.
 function fillRow(rowId, movies) {
   const el = document.getElementById(rowId);
   if (!el) return;
@@ -107,23 +84,14 @@ function fillRow(rowId, movies) {
 }
 
 
-/* ============================================================
-   8. HELPER: scroll row kiri/kanan
-   Dipanggil oleh tombol panah di setiap section.
-   dir: -1 = kiri, 1 = kanan
-   ============================================================ */
+// scroll saat tombol panah diklik.
 function scrollRow(rowId, dir) {
   const el = document.getElementById(rowId);
   if (el) el.scrollBy({ left: dir * 600, behavior: 'smooth' });
 }
 
 
-/* ============================================================
-   9. FUNGSI: toggleWatchCard
-   Tambah/hapus film dari watchlist, dipanggil dari tombol
-   di kartu. Menerima data dasar film sebagai parameter
-   karena kita tidak punya objek penuh di sini.
-   ============================================================ */
+//saat tombol di card diklik. Jika film belum ada di watchlist, tambahkan. Jika sudah ada, hapus.
 function toggleWatchCard(btn, id, title, year, poster, rating) {
   const idx = watchlist.findIndex(w => w.id === id);
   if (idx === -1) {
@@ -133,12 +101,12 @@ function toggleWatchCard(btn, id, title, year, poster, rating) {
   }
   saveWatchlist();
 
-  /* Update tampilan tombol yang diklik */
+  // tampilan tombol yang diklik (update)
   const inList = watchlist.some(w => w.id === id);
   btn.className = `card-add-btn ${inList ? 'added' : ''}`;
   btn.innerHTML = `<i class="ti ${inList ? 'ti-check' : 'ti-plus'}"></i> ${inList ? 'Tersimpan' : 'Watchlist'}`;
 
-  /* Sinkronisasi semua tombol dengan id yang sama di halaman */
+  // update semua tombol lainnya id sama (misal di rekomendasi atau detail page)
   document.querySelectorAll('.card-add-btn').forEach(b => {
     if (b !== btn && b.closest('.movie-card') &&
         b.closest('.movie-card').href && b.closest('.movie-card').href.includes(`id=${id}`)) {
@@ -147,15 +115,12 @@ function toggleWatchCard(btn, id, title, year, poster, rating) {
     }
   });
 
-  /* Re-render watchlist section jika ada */
+  // Re-render watchlist section jika ada
   renderWatchlistSection();
 }
 
 
-/* ============================================================
-   10. FUNGSI: renderWatchlistSection
-   Menampilkan daftar watchlist di index.html.
-   ============================================================ */
+//menampilkan daftar film yang sudah disimpan di watchlist. Jika kosong, tampilkan pesan kosong.
 function renderWatchlistSection() {
   const el = document.getElementById('watchlistItems');
   const countEl = document.getElementById('watchCount');
@@ -192,9 +157,7 @@ function renderWatchlistSection() {
 }
 
 
-/* ============================================================
-   11. FUNGSI: removeFromWatchlist
-   ============================================================ */
+//hapus film dari watchlist berdasarkan id, lalu update tampilan.
 function removeFromWatchlist(id) {
   watchlist = watchlist.filter(w => w.id !== id);
   saveWatchlist();
@@ -202,10 +165,7 @@ function removeFromWatchlist(id) {
 }
 
 
-/* ============================================================
-   12. FUNGSI: showWatchPopup
-   Popup pilihan platform di watchlist.
-   ============================================================ */
+//tampilkan popup pilihan platform saat tombol tonton diklik. Jika popup sudah terbuka, klik lagi untuk tutup.
 function showWatchPopup(btn, title) {
   if (openPopup) { openPopup.remove(); openPopup = null; return; }
   const popup = document.createElement('div');
@@ -229,11 +189,8 @@ document.addEventListener('click', e => {
 });
 
 
-/* ============================================================
-   13. FUNGSI: handleSearch
-   Debounce 400ms agar tidak terlalu banyak request saat user
-   masih mengetik. Setelah 400ms berhenti mengetik, baru fetch.
-   ============================================================ */
+//menangani pencara film di navbar.tunggu hasil pencarian saat user berhenti mengetik selama 400ms,
+// lalu tampilkan hasilnya di filterSection.
 function handleSearch() {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(async () => {
@@ -252,11 +209,7 @@ function handleSearch() {
 }
 
 
-/* ============================================================
-   14. FUNGSI: applyNavFilter
-   Filter genre + tahun dari navbar. Memanggil TMDB
-   /discover/movie dengan parameter genre_id dan year.
-   ============================================================ */
+//filter film berdasarkan genre dan/atau tahun rilis yang dipilih di navbar
 async function applyNavFilter() {
   const genreId = document.getElementById('navGenre')?.value || '';
   const year    = document.getElementById('navYear')?.value  || '';
@@ -281,9 +234,7 @@ async function applyNavFilter() {
 }
 
 
-/* ============================================================
-   15. HELPER: tampilkan/sembunyikan filterSection
-   ============================================================ */
+//tampilkan section hasil filter/search dengan judul sesuai kriteria yang dipilih.
 function showFilterSection(title) {
   const sec = document.getElementById('filterSection');
   if (sec) {
@@ -297,9 +248,8 @@ function hideFilterSection() {
 }
 
 
-/* ============================================================
-   16. HELPER: isi grid penuh (hasil filter/search)
-   ============================================================ */
+//dan tampilkan hasil pencarian atau filter di grid.
+// Jika tidak ada hasil, tampilkan pesan kosong.
 function fillGrid(gridId, movies) {
   const el = document.getElementById(gridId);
   if (!el) return;
@@ -311,9 +261,7 @@ function fillGrid(gridId, movies) {
 }
 
 
-/* ============================================================
-   17. HELPER: skeleton grid loading
-   ============================================================ */
+//untuk tampilan sementara asaat menuggu hasil penncarian
 function skeletonGrid(n) {
   return Array(n).fill(`
     <div class="movie-card" style="pointer-events:none">
@@ -325,18 +273,7 @@ function skeletonGrid(n) {
     </div>`).join('');
 }
 
-
-/* ============================================================
-   ██████████████████████████████████
-   INDEX PAGE — fungsi khusus beranda
-   ██████████████████████████████████
-   ============================================================ */
-
-/* ============================================================
-   18. INIT INDEX
-   Dipanggil saat halaman index.html dimuat.
-   Fetch trending, populer, top rated secara paralel.
-   ============================================================ */
+//untuk inisialisasi halaman index.html. Fetch data untuk semua section (trending, popular, top rated)
 async function initIndex() {
   /* Cek apakah ada query search dari URL (dari detail page) */
   const urlQ = new URLSearchParams(location.search).get('q');
@@ -364,11 +301,8 @@ async function initIndex() {
 }
 
 
-/* ============================================================
-   19. FUNGSI: renderHero
-   Menampilkan banner besar film pertama dari trending.
-   Backdrop image diambil dari TMDB dengan ukuran original.
-   ============================================================ */
+//untuk emanmpilkan gambar backdrop besar,judul,info utama film di bagian hero.
+// Data diambil dari film trending pertama di tmdb
 function renderHero(movie) {
   const hero = document.getElementById('heroSection');
   if (!hero || !movie) return;
@@ -406,20 +340,9 @@ function renderHero(movie) {
 }
 
 
-/* ============================================================
-   ████████████████████████████████████
-   DETAIL PAGE — fungsi khusus detail.html
-   ████████████████████████████████████
-   ============================================================ */
 
-/* ============================================================
-   20. INIT DETAIL
-   Membaca id film dari URL (?id=xxx), lalu fetch:
-   - detail film (judul, sinopsis, genre, durasi)
-   - credits (cast & crew)
-   - rekomendasi film serupa
-   Semua fetch berjalan paralel dengan Promise.all.
-   ============================================================ */
+//untuk inisialisasi halaman detail.html
+
 async function initDetail() {
   const id = new URLSearchParams(location.search).get('id');
   if (!id) { window.location = 'index.html'; return; }
@@ -447,10 +370,7 @@ async function initDetail() {
 }
 
 
-/* ============================================================
-   21. FUNGSI: renderDetailHero
-   Menampilkan backdrop besar + poster + info utama film.
-   ============================================================ */
+// emanmplkan gambar backdrop besar,judul,info utama film di bagian hero halaman detail.
 function renderDetailHero(m) {
   const hero = document.getElementById('detailHero');
   if (!hero) return;
@@ -499,11 +419,8 @@ function renderDetailHero(m) {
 }
 
 
-/* ============================================================
-   22. FUNGSI: toggleWatchDetail
-   Tombol watchlist di halaman detail — sama seperti
-   toggleWatchCard tapi update tombol yang berbeda.
-   ============================================================ */
+// sama saja dengan toggleWatchCard, tapi khusus untuk tombol di halaman detail.
+// Karena tombol di detail page tidak punya atribut "added" seperti di card, jadi kita update tampilannya secara manual.
 function toggleWatchDetail(id, title, year, poster, rating) {
   const idx = watchlist.findIndex(w => w.id === id);
   if (idx === -1) watchlist.push({ id, title, year, poster, rating });
@@ -518,10 +435,7 @@ function toggleWatchDetail(id, title, year, poster, rating) {
 }
 
 
-/* ============================================================
-   23. FUNGSI: renderSynopsis
-   Tampilkan sinopsis film. Jika kosong, sembunyikan section.
-   ============================================================ */
+//menamplkan sinopsis film di halaman detail diambil dari tmdb
 function renderSynopsis(m) {
   const sec = document.getElementById('synopsisSection');
   const el  = document.getElementById('synopsis');
@@ -534,11 +448,7 @@ function renderSynopsis(m) {
 }
 
 
-/* ============================================================
-   24. FUNGSI: renderCast
-   Tampilkan 20 pemeran pertama dalam scroll horizontal.
-   Foto aktor diambil dari TMDB /person/{id}.
-   ============================================================ */
+//utuk menampilakn pemeran utama di film seperti biasa data diambil dari tmdb
 function renderCast(cast) {
   const sec = document.getElementById('castSection');
   const row = document.getElementById('castRow');
@@ -563,10 +473,7 @@ function renderCast(cast) {
 }
 
 
-/* ============================================================
-   25. FUNGSI: renderRecommendations
-   Film serupa dari TMDB, tampilkan dalam scroll horizontal.
-   ============================================================ */
+//film yang serupa beeada dengan film yang sedang dilihat, data diambil dari tmdb juga
 function renderRecommendations(movies) {
   const sec = document.getElementById('recSection');
   const row = document.getElementById('recRow');
@@ -579,11 +486,8 @@ function renderRecommendations(movies) {
 }
 
 
-/* ============================================================
-   26. DETEKSI HALAMAN & JALANKAN INIT YANG SESUAI
-   Cek elemen mana yang ada di DOM untuk tahu di halaman mana
-   kita berada, lalu jalankan fungsi init yang tepat.
-   ============================================================ */
+// simpelnya, cek halaman mana yang sedang dibuka dengan melihat elemen unik di setiap halaman
+// lalu panggil fungsi inisialisasi yang sesuai.
 if (document.getElementById('heroSection')) {
   /* Halaman index.html */
   initIndex();

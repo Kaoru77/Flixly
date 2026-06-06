@@ -1,31 +1,26 @@
-/*
-============================================================
-style.css —Flixly
-Styling untuk index.html dan detail.html
-============================================================
-*/
+
+/* style.css —Flixly
+Styling untuk index.html dan detail.html*/
+
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #0F0F0F;      /* Latar gelap ala bioskop */
-  --surface:      #1A1A1A;      /* Permukaan kartu */
-  --surface2:     #242424;      /* Permukaan lebih terang */
-  --border:       #2E2E2E;      /* Garis tepi */
-  --text:         #F0F0F0;      /* Teks utama */
-  --muted:        #888;         /* Teks abu */
-  --accent:       #E8B74A;      /* Kuning emas */
-  --accent2:      #D85A30;      /* Oranye aksen */
+  --bg:           #0F0F0F;     
+  --surface:      #1A1A1A;     
+  --surface2:     #242424;     
+  --border:       #2E2E2E;      
+  --text:         #F0F0F0;      
+  --muted:        #888;         
+  --accent:       #E8B74A;      
+  --accent2:      #D85A30;     
   --star:         #E8B74A;
   --success:      #4CAF50;
   --radius:       10px;
   --radius-sm:    6px;
   --nav-h:        64px;
 }
-
-/* ============================================================
-   SCROLLBAR kustom agar sesuai tema gelap
-   ============================================================ */
+/* SCROLLBAR kustom agar sesuai tema gelap*/
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -37,11 +32,10 @@ body {
   min-height: 100vh;
 }
 
-/* ============================================================
-   NAVBAR
+/* NAVBAR
    Sticky di atas, blur background agar konten di bawahnya
-   tetap terbaca saat halaman di-scroll.
-   ============================================================ */
+   tetap terbaca saat halaman di-scroll.*/
+
 .navbar {
   position: sticky;
   top: 0;
@@ -124,12 +118,10 @@ select:focus, select:hover { border-color: var(--accent); }
   padding: 0 1.5rem 4rem;
 }
 
-/* ============================================================
-   HERO — index.html
+/* HERO — index.html
    Banner besar film trending pertama. Background menggunakan
    gambar backdrop dari TMDB dengan gradient overlay agar
-   teks di atas terbaca.
-   ============================================================ */
+   teks di atas terbaca.*/
 .hero {
   margin: 0 -1.5rem 2.5rem;
   height: 480px;
@@ -247,10 +239,8 @@ select:focus, select:hover { border-color: var(--accent); }
 }
 .btn-secondary:hover { background: rgba(255,255,255,.22); }
 
-/* ============================================================
-   ROW SECTION
-   Section dengan judul + tombol scroll kanan/kiri.
-   ============================================================ */
+/* ROW SECTION
+   Section dengan judul + tombol scroll kanan/kiri.*/
 .row-section { margin-bottom: 2.5rem; }
 
 .row-header {
@@ -288,11 +278,9 @@ select:focus, select:hover { border-color: var(--accent); }
 }
 .scroll-btns button:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ============================================================
-   MOVIE ROW — scroll horizontal
+/*MOVIE ROW — scroll horizontal
    overflow-x: auto + no-wrap membuat kartu berjejer ke kanan.
-   scrollbar disembunyikan agar tampak rapi.
-   ============================================================ */
+   scrollbar disembunyikan agar tampak rapi.*/
 .movie-row {
   display: flex;
   gap: 12px;
@@ -321,9 +309,7 @@ select:focus, select:hover { border-color: var(--accent); }
   animation: shimmer 1.4s infinite;
 }
 
-/* ============================================================
-   KARTU FILM
-   ============================================================ */
+/*KARTU FILM */
 .movie-card {
   flex: 0 0 148px;          /* Lebar tetap agar row bisa scroll */
   background: var(--surface);
@@ -406,9 +392,7 @@ select:focus, select:hover { border-color: var(--accent); }
 .card-add-btn:hover { border-color: var(--accent); color: var(--accent); }
 .card-add-btn.added { border-color: var(--success); color: var(--success); background: rgba(76,175,80,.1); }
 
-/* ============================================================
-   GRID PENUH (hasil filter/search)
-   ============================================================ */
+/*GRID PENUH (hasil filter/search)*/
 .movie-grid-full {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
@@ -416,9 +400,7 @@ select:focus, select:hover { border-color: var(--accent); }
 }
 .movie-grid-full .movie-card { flex: unset; }
 
-/* ============================================================
-   WATCHLIST LIST
-   ============================================================ */
+/* WATCHLIST LIST */
 .watch-item {
   display: flex;
   align-items: center;
@@ -518,9 +500,7 @@ select:focus, select:hover { border-color: var(--accent); }
   line-height: 2;
 }
 
-/* ============================================================
-   DETAIL PAGE — detail.html
-   ============================================================ */
+/*DETAIL PAGE — detail.html*/
 .back-btn-wrap { padding: 1.25rem 0 0; }
 .back-btn {
   font-family: 'DM Sans', sans-serif;
@@ -644,9 +624,7 @@ select:focus, select:hover { border-color: var(--accent); }
   max-width: 800px;
 }
 
-/* ============================================================
-   CAST ROW — scroll horizontal
-   ============================================================ */
+/*CAST ROW — scroll horizontal*/
 .cast-row {
   display: flex;
   gap: 12px;
@@ -676,17 +654,13 @@ select:focus, select:hover { border-color: var(--accent); }
 .cast-name { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; }
 .cast-role { font-size: 11px; color: var(--muted); }
 
-/* ============================================================
-   SHIMMER ANIMATION
-   ============================================================ */
+/*SHIMMER ANIMATION*/
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to   { background-position: -200% 0; }
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+/*RESPONSIVE*/
 @media (max-width: 640px) {
   .nav-filters { display: none; }
   .hero { height: 320px; }

@@ -23,40 +23,25 @@
       </div>
     </div>
   </nav>
-
   <main class="main-content">
-
-    <!-- ================================================
-    BACK BUTTON
-    Tombol kembali ke halaman sebelumnya.
-    ================================================ -->
     <div class="back-btn-wrap">
       <button class="back-btn" onclick="history.back()">
         <i class="ti ti-arrow-left"></i> Kembali
       </button>
     </div>
 
-    <!-- ================================================
-    HERO DETAIL
-    Backdrop besar + poster + info film utama.
-    Diisi oleh JavaScript setelah fetch dari TMDB.
-    ================================================ -->
+    <!-- menampilkan gambar backdrop besar,judul,info utama film di bagian hero halaman detail. -->
     <div id="detailHero" class="detail-hero">
       <div class="detail-skeleton"></div>
     </div>
 
-    <!-- ================================================
-    SINOPSIS
-    ================================================ -->
+    <!-- sinopsis film di halaman detail diambil dari tmdb -->
     <section class="detail-section" id="synopsisSection" style="display:none">
       <h3 class="detail-section-title">Sinopsis</h3>
       <p id="synopsis" class="synopsis-text"></p>
     </section>
 
-    <!-- ================================================
-    PEMERAN / CAST
-    Scroll horizontal daftar aktor.
-    ================================================ -->
+    <!-- pemeran utama di film seperti biasa data diambil dari tmdb -->
     <section class="detail-section" id="castSection" style="display:none">
       <div class="row-header">
         <h3 class="detail-section-title">Pemeran</h3>
@@ -68,10 +53,7 @@
       <div class="cast-row" id="castRow"></div>
     </section>
 
-    <!-- ================================================
-    REKOMENDASI FILM
-    Film serupa dari TMDB, scroll horizontal.
-    ================================================ -->
+    <!-- rekomendasi film yang serupa -->
     <section class="detail-section" id="recSection" style="display:none">
       <div class="row-header">
         <h3 class="detail-section-title">Film Serupa</h3>
